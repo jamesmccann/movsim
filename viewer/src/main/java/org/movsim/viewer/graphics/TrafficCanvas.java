@@ -601,16 +601,25 @@ public class TrafficCanvas extends SimulationCanvasBase implements SimulationRun
         }
 
         // draw the road edges
+        boolean[] laneEdges = roadMapping.getLaneEdges();
+        double offset;
+        if (laneEdges[1]) {           
+            // FIXME BUGGY HERE, offset not calculated correctly
+            // edge of most inner lane: hack here, lane does not exist
+            offset = roadMapping.laneInsideEdgeOffset(Lanes.MOST_INNER_LANE - 1);
+            drawRoadEdge(g, roadMapping, offset);
+        } 
+        if (laneEdges[3]) {
+            // edge of most outer edge
+            offset = roadMapping.laneInsideEdgeOffset(roadMapping.laneCount());
+            drawRoadEdge(g, roadMapping, offset);
+        }
+    }
+    
+    private void drawRoadEdge(Graphics2D g, RoadMapping roadMapping, double offset) {
         g.setStroke(new BasicStroke());
         g.setColor(roadEdgeColor);
-        // FIXME BUGGY HERE, offset not calculated correctly
-        // edge of most inner lane: hack here, lane does not exist
-        double offset = roadMapping.laneInsideEdgeOffset(Lanes.MOST_INNER_LANE - 1);
         PaintRoadMapping.paintRoadMapping(g, roadMapping, offset);
-        // edge of most outer edge
-        offset = roadMapping.laneInsideEdgeOffset(roadMapping.laneCount());
-        PaintRoadMapping.paintRoadMapping(g, roadMapping, offset);
-
     }
 
     private void drawTrafficLights(Graphics2D g) {

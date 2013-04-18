@@ -166,6 +166,9 @@ public abstract class RoadMapping {
     // Clipping Region
     protected static final int POINT_COUNT = 4;
 
+    // optional lane edge values representing start, inside lane, end, and outside lane edges
+    protected boolean[] laneEdges = new boolean[] { false, true, false, true };
+
     protected final PolygonFloat polygonFloat = new PolygonFloat(POINT_COUNT);
     protected ArrayList<PolygonFloat> clippingPolygons;
     protected PolygonFloat outsideClippingPolygon;
@@ -410,6 +413,26 @@ public abstract class RoadMapping {
      */
     public final double laneInsideEdgeOffset(int lane) {
         return (0.5 * (1 - laneCount + 1) + (lane - 1)) * laneWidth;
+    }
+
+    /**
+     * Returns an array of boolean values representing the four possible
+     * edges of a RoadMapping (start, end, inside, outside)
+     * 
+     * The array is ordered clockwise from the start of the RoadMapping
+     * with the first edge being perpendicular to the start of the road,
+     * the second edge being inside the innermost lane, the third edge
+     * being perpendicular at the end of the RoadMapping and the fourth
+     * edge being outside the outermost lane.
+     * 
+     * @return boolean array representing edges of this RoadMapping
+     */
+    public boolean[] getLaneEdges() {
+        return laneEdges;
+    }
+
+    public void setLaneEdge(int i, boolean val) {
+        laneEdges[i] = val;
     }
 
     /**

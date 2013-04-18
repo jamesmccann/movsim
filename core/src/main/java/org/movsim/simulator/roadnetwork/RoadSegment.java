@@ -85,20 +85,20 @@ public class RoadSegment implements Iterable<Vehicle> {
 
     public static final int ID_NOT_SET = -1;
     public static final int INITIAL_ID = 1;
-    private static int nextId = INITIAL_ID;
+    protected static int nextId = INITIAL_ID;
 
     /** the id is an internally used unique identifier for the road. */
-    private final int id;
+    protected final int id;
     /** the userId is the id specified in the .xodr and .xml files. */
     private String userId;
     /** road name specified in the openDrive .xodr network file. */
     private String roadName;
 
-    private final double roadLength;
+    protected final double roadLength;
     /** total length of road up to start of segment. */
     private final double cumulativeRoadLength = -1.0;
-    private final int laneCount;
-    private final LaneSegment laneSegments[];
+    protected final int laneCount;
+    protected final LaneSegment laneSegments[];
     private LoopDetectors loopDetectors;
     private FlowConservingBottlenecks flowConservingBottlenecks;
     private SortedSet<TrafficLightLocation> trafficLightLocations = new TreeSet<>(
@@ -119,7 +119,7 @@ public class RoadSegment implements Iterable<Vehicle> {
     // Sources and Sinks
     private AbstractTrafficSource trafficSource;
     private TrafficSink sink;
-    private RoadMapping roadMapping;
+    protected RoadMapping roadMapping;
 
     /** simple ramp with dropping mechanism */
     private SimpleRamp simpleRamp;

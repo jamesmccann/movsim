@@ -1,6 +1,7 @@
 package org.movsim.input.network;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -368,30 +369,34 @@ public class OpenDriveHandlerJaxb {
         // iterate through all the junctions
         for (Junction junction : openDriveNetwork.getJunction()) {
             for (Connection connection : junction.getConnection()) {
+                ArrayList<RoadSegment> connectingSegments = new ArrayList<>();
                 RoadSegment incomingRoadSegment = Preconditions.checkNotNull(
                         roadNetwork.findByUserId(connection.getIncomingRoad()), "Cannot find incoming road: "
                                 + connection.getIncomingRoad());
-                RoadSegment connenctingRoadSegment = Preconditions.checkNotNull(
+                RoadSegment connectingRoadSegment = Preconditions.checkNotNull(
                         roadNetwork.findByUserId(connection.getConnectingRoad()), "Cannot find connecting road: "
                                 + connection.getConnectingRoad());
                 Road road = findByUserId(openDriveNetwork.getRoad(), connection.getConnectingRoad());
+                connectingSegments.add(incomingRoadSegment);
+                connectingSegments.add(connectingRoadSegment);
                 if (roadPredecessorIsJunction(junction, road)) {
                     for (final LaneLink laneLink : connection.getLaneLink()) {
                         final int fromLane = OpenDriveHandlerUtils.laneIdToLaneIndex(incomingRoadSegment,
                                 laneLink.getFrom());
-                        final int toLane = OpenDriveHandlerUtils.laneIdToLaneIndex(connenctingRoadSegment,
+                        final int toLane = OpenDriveHandlerUtils.laneIdToLaneIndex(connectingRoadSegment,
                                 laneLink.getTo());
                         LOG.debug("lanepair from={} to={}", laneLink.getFrom(), laneLink.getTo());
-                        Link.addLanePair(fromLane, incomingRoadSegment, toLane, connenctingRoadSegment);
+                        Link.addLanePair(fromLane, incomingRoadSegment, toLane, connectingRoadSegment);
                     }
                 } else if (roadSuccessorIsJunction(junction, road)) {
                     for (final LaneLink laneLink : connection.getLaneLink()) {
-                        final int fromLane = OpenDriveHandlerUtils.laneIdToLaneIndex(connenctingRoadSegment,
+                        final int fromLane = OpenDriveHandlerUtils.laneIdToLaneIndex(connectingRoadSegment,
                                 laneLink.getFrom());
                         final int toLane = OpenDriveHandlerUtils.laneIdToLaneIndex(incomingRoadSegment,
                                 laneLink.getTo());
                         LOG.debug("lanepair from={} to={}", laneLink.getFrom(), laneLink.getTo());
-                        Link.addLanePair(fromLane, connenctingRoadSegment, toLane, incomingRoadSegment);
+                        Link.addLanePair(fromLane, connectingRoadSegment, toLane, incomingRoadSegment);
+
                     }
                 } else {
                     throw new IllegalArgumentException("Incorrect junction: id=" + junction.getId());

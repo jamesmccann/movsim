@@ -25,6 +25,8 @@
  */
 package org.movsim.simulator.vehicles;
 
+import java.util.Random;
+
 import javax.annotation.Nullable;
 
 import org.movsim.autogen.VehiclePrototypeConfiguration;
@@ -95,6 +97,12 @@ public class Vehicle {
     public static final int ID_NOT_SET = -1;
     private static final int VEHICLE_NUMBER_NOT_SET = -1;
     public static final int LANE_NOT_SET = -1;
+
+    /**
+     * Vehicle priority, used for calculating urgency and cost
+     * of interruption at traffic lights
+     */
+    private final VehiclePriority priority;
 
     /**
      * 'Not Set' road segment id value, guaranteed not to be used by any vehicles.
@@ -269,6 +277,10 @@ public class Vehicle {
         assert FINITE_LANE_CHANGE_TIME_S > 0;
 
         this.color = Colors.randomColor();
+        
+        //assign a priority for this vehicle
+        // at the moment the urgency is random between 1-5
+        this.priority = new VehiclePriority(this, new Random().nextInt(5) + 1);
     }
 
     /**
@@ -296,6 +308,9 @@ public class Vehicle {
         speedlimit = MovsimConstants.MAX_VEHICLE_SPEED;
         slope = 0;
         route = null;
+        // assign a priority for this vehicle
+        // at the moment the urgency is random between 1-5
+        this.priority = new VehiclePriority(this, new Random().nextInt(5) + 1);
     }
 
     /**
@@ -322,6 +337,7 @@ public class Vehicle {
         speedlimit = MovsimConstants.MAX_VEHICLE_SPEED;
         slope = source.slope;
         route = source.route;
+        priority = source.priority;
     }
 
     private void initialize() {
@@ -1213,6 +1229,10 @@ public class Vehicle {
 
     public void setRoute(Route route) {
         this.route = route;
+    }
+
+    public VehiclePriority getPriority() {
+        return priority;
     }
 
 }

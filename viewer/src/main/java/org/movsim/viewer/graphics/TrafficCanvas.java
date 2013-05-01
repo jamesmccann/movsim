@@ -509,6 +509,16 @@ public class TrafficCanvas extends SimulationCanvasBase implements SimulationRun
         vehiclePath.closePath();
         g.setPaint(vehicleColor(vehicle, simulationTime));
         g.fill(vehiclePath);
+        
+        // draw the vehicle priority
+        final int fontHeight = 12;
+        final Font font = new Font("SansSerif", Font.PLAIN, fontHeight);
+        g.setFont(font);
+        g.setColor(Color.BLACK);
+        g.drawString(Integer.toString(vehicle.getPriority().urgency), 
+                (int) polygon.xPoints[0], 
+                (int) polygon.yPoints[0]);
+        
         if (vehicle.isBrakeLightOn()) {
             // if the vehicle is decelerating then display the
             vehiclePath.reset();

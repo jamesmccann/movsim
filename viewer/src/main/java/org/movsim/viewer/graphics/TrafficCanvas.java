@@ -519,6 +519,12 @@ public class TrafficCanvas extends SimulationCanvasBase implements SimulationRun
                 (int) polygon.xPoints[0], 
                 (int) polygon.yPoints[0]);
         
+        //draw the vehicle instantaneous fuel cost
+        System.out.println(vehicle.getInstantaneousCost());
+        g.drawString("$" + String.format("%.2f", vehicle.getInstantaneousCost()), 
+               (int) polygon.xPoints[0], 
+               (int) polygon.yPoints[0]+12);
+        
         if (vehicle.isBrakeLightOn()) {
             // if the vehicle is decelerating then display the
             vehiclePath.reset();

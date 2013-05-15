@@ -42,7 +42,7 @@ public class VehiclePriority {
 
     /**
      * The dollar value of petrol consumed when stopping the vehicle from its current
-     * speed and accelerating back to a cruise speed when the vehicle is requested to stop
+     * speed, idling while delayed, and accelerating back to a cruise speed when the vehicle is requested to stop
      * at a traffic light.
      * 
      * @return
@@ -50,4 +50,5 @@ public class VehiclePriority {
     public double stoppingCost() {
         return 0.0;
     }
+
 }

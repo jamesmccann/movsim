@@ -123,6 +123,7 @@ public class Vehicle {
     private double length; // can be set in micro-boundary conditions
     private final double width;
     private double weight; // used in a project, not in fuel consumption calculation!
+    private VehicleClass vehicleClass;
 
     /** The front position of the vehicle. The reference position. */
     private double frontPosition;
@@ -256,8 +257,21 @@ public class Vehicle {
         Preconditions.checkNotNull(longitudinalModel);
         Preconditions.checkNotNull(vehInput);
         this.label = label;
+
+        // length == 6.0 (car) || length == 16.0 (truck or bus)
         this.length = vehInput.getLength();
         this.width = vehInput.getWidth();
+        
+        if (length > 6.0) {
+            if (new Random().nextInt(2) == 0) {
+                vehicleClass = VehicleClass.BUS;
+            } else {
+                vehicleClass = VehicleClass.TRUCK;
+            }
+        } else {
+            vehicleClass = VehicleClass.CAR;
+        }
+
         this.maxDeceleration = vehInput.getMaximumDeceleration();
 
         id = nextId++;
@@ -266,7 +280,7 @@ public class Vehicle {
         initialize();
         this.longitudinalModel = longitudinalModel;
         physQuantities = new PhysicalQuantities(this);
-
+        
         this.laneChangeModel = lcModel;
         if (laneChangeModel != null) {
             laneChangeModel.initialize(this);
@@ -279,8 +293,7 @@ public class Vehicle {
         this.color = Colors.randomColor();
         
         //assign a priority for this vehicle
-        // at the moment the urgency is random between 1-5
-        this.priority = new VehiclePriority(this, new Random().nextInt(5) + 1);
+        this.priority = new VehiclePriority(this);
     }
 
     /**
@@ -308,9 +321,9 @@ public class Vehicle {
         speedlimit = MovsimConstants.MAX_VEHICLE_SPEED;
         slope = 0;
         route = null;
+
         // assign a priority for this vehicle
-        // at the moment the urgency is random between 1-5
-        this.priority = new VehiclePriority(this, new Random().nextInt(5) + 1);
+        this.priority = new VehiclePriority(this);
     }
 
     /**
@@ -1233,6 +1246,10 @@ public class Vehicle {
 
     public VehiclePriority getPriority() {
         return priority;
+    }
+
+    public VehicleClass getVehicleClass() {
+        return vehicleClass;
     }
 
 }

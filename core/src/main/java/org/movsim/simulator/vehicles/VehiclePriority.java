@@ -1,9 +1,10 @@
 package org.movsim.simulator.vehicles;
 
+
 public class VehiclePriority {
 
     private Vehicle vehicle;
-
+    
     /**
      * Urgency is a value between 1 and 5 (inclusive) set
      * by the "driver" of the vehicle based on their own
@@ -19,14 +20,24 @@ public class VehiclePriority {
     public int urgency;
 
     /**
-     * The number of passengers in the vehicle. A vehicle with
-     * a greater number of passengers has a higher priority
+     * The number of passengers in the vehicle. A higher number of
+     * passengers increases the priority of the vehicle
      */
     private int numberOfPassengers;
 
-    public VehiclePriority(Vehicle vehicle, int urgency) {
+    public VehiclePriority(Vehicle vehicle) {
         this.vehicle = vehicle;
-        this.urgency = urgency;
+        switch (vehicle.getVehicleClass()) {
+        case CAR:
+            urgency = VehicleUrgency.sampleCar();
+            break;
+        case TRUCK:
+            urgency = VehicleUrgency.sampleTruck();
+            break;
+        case BUS:
+            urgency = VehicleUrgency.sampleBus();
+            break;
+        }
     }
 
     /**

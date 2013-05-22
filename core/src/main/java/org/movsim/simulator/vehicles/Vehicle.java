@@ -264,12 +264,12 @@ public class Vehicle {
         
         if (length > 6.0) {
             if (new Random().nextInt(2) == 0) {
-                vehicleClass = VehicleClass.BUS;
+                vehicleClass = new BusVehicleClass();
             } else {
-                vehicleClass = VehicleClass.TRUCK;
+                vehicleClass = new TruckVehicleClass();
             }
         } else {
-            vehicleClass = VehicleClass.CAR;
+            vehicleClass = new LightVehicleClass();
         }
 
         this.maxDeceleration = vehInput.getMaximumDeceleration();
@@ -491,6 +491,10 @@ public class Vehicle {
      */
     public final double getSpeed() {
         return speed;
+    }
+
+    public final double getKmphSpeed() {
+        return speed * 3.6;
     }
 
     /**
@@ -1190,7 +1194,7 @@ public class Vehicle {
     }
 
     public double getInstantaneousCost() {
-        return VehicleConsumption.instantaneousCost(this);
+        return VehicleConsumption.instantaneousFuelConsumption(this);
     }
 
     @Override

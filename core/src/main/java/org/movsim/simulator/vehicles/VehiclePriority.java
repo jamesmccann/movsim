@@ -27,16 +27,14 @@ public class VehiclePriority {
 
     public VehiclePriority(Vehicle vehicle) {
         this.vehicle = vehicle;
-        switch (vehicle.getVehicleClass()) {
-        case CAR:
-            urgency = VehicleUrgency.sampleCar();
-            break;
-        case TRUCK:
+        if (vehicle.getVehicleClass().getClass() == TruckVehicleClass.class) {
             urgency = VehicleUrgency.sampleTruck();
-            break;
-        case BUS:
+        }
+        if (vehicle.getVehicleClass().getClass() == BusVehicleClass.class) {
             urgency = VehicleUrgency.sampleBus();
-            break;
+        }
+        if (vehicle.getVehicleClass().getClass() == LightVehicleClass.class) {
+            urgency = VehicleUrgency.sampleCar();
         }
     }
 

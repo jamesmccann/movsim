@@ -520,8 +520,7 @@ public class TrafficCanvas extends SimulationCanvasBase implements SimulationRun
                 (int) polygon.yPoints[0]);
         
         //draw the vehicle instantaneous fuel cost
-        System.out.println(vehicle.getInstantaneousCost());
-        g.drawString("$" + String.format("%.2f", vehicle.getInstantaneousCost()), 
+        g.drawString(String.format("%.2f", vehicle.getInstantaneousCost()), 
                (int) polygon.xPoints[0], 
                (int) polygon.yPoints[0]+12);
         

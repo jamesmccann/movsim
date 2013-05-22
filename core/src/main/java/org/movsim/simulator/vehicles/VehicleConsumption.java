@@ -5,52 +5,54 @@ public class VehicleConsumption {
     private Vehicle vehicle;
 
     /**
-     * Cost per litre units in dollars of recorded fuel price in Wellington
-     * region
+     * Environmental constants
      */
-    private static final double PETROL_FUEL_PRICE_PER_LITRE = 1.969;
-    private static final double DIESEL_FUEL_PRICE_PER_LITRE = 1.399;
-
-    /**
-     * Average weight in kilograms for light (cars) and heavy (trucks and buses)
-     * vehicles.
-     */
-    private static final double LIGHT_VEHICLE_WEIGHT = 1400;
-    private static final double HEAVY_VEHICLE_WEIGHT = 11000;
-
-    /**
-     * Average idle consumption rates for light and heavy vehicles.
-     * Measured in milliliters per hour, mL/h.
-     */
-    private static final double LV_IDLE_CONSUMPTION_RATE = 1350;
-    private static final double HV_IDLE_CONSUMPTION_RATE = 2000;
+    private static final double GRAVITATIONAL_ACCELERATION = 9.81;
+    private static final double AIR_DENSITY = 1.3;
+    private static final double IDLING_POWER = 3.0;
 
     private VehicleConsumption() {
         // no instantiation
     }
 
-    public static double instantaneousCost(Vehicle v) {
-        double fuelConsumptionRate = 0.0;
-        double fuelPrice = 0.0;
-        double vehicleWeight = 0.0;
+    public static double instantaneousFuelConsumption(Vehicle v) {
+        double consumptionRate, mass, consumptionPer100Km;
+        VehicleClass vc = v.getVehicleClass();
 
-        if (v.getSpeed() <= 10000) {
-            if (v.getVehicleClass() == VehicleClass.CAR) {
-                return (LV_IDLE_CONSUMPTION_RATE / 1000 * PETROL_FUEL_PRICE_PER_LITRE);
-            } else {
-                return (HV_IDLE_CONSUMPTION_RATE / 1000 * DIESEL_FUEL_PRICE_PER_LITRE);
-            }
-        }
+        mass = vc.getWeight();
+//        consumptionRate = instantaneousEnginePower(v) / 
+//                (vc.getEngineEfficiencyFactor() * vc.getFuelEnergyDensity());
+        
+        double enginePower = instantaneousEnginePower(v);
+        System.out.println(enginePower);
 
-        if (v.getVehicleClass() == VehicleClass.CAR) {
-            vehicleWeight = LIGHT_VEHICLE_WEIGHT;
-            fuelPrice = PETROL_FUEL_PRICE_PER_LITRE;
-        } else {
-            vehicleWeight = HEAVY_VEHICLE_WEIGHT;
-            fuelPrice = DIESEL_FUEL_PRICE_PER_LITRE;
-        }
+        consumptionPer100Km = (10000 / (vc.getEngineEfficiencyFactor() * vc.getFuelEnergyDensity()))
+                * (enginePower / v.getKmphSpeed());
+                
+        return consumptionPer100Km;
+    }
 
-        return fuelConsumptionRate * fuelPrice;
+    public static double instantaneousEnginePower(Vehicle v) {
+        double mass, frictionC, dragC, crossSection;
+        double inertiaForce, frictionForce, aerodynamicDrag;
+        VehicleClass vc = v.getVehicleClass();
+
+        mass = vc.getWeight();
+        frictionC = vc.getFrictionCoefficient();
+        dragC = vc.getDragCoefficient();
+        crossSection = vc.getApproximateCrossSection();
+
+        inertiaForce = mass * v.getAcc();
+
+        frictionForce = mass * frictionC * GRAVITATIONAL_ACCELERATION;
+        
+        aerodynamicDrag = 0.5 * dragC * AIR_DENSITY * crossSection * Math.pow(v.getKmphSpeed(), 2);
+
+        System.out.println("inertia: " + inertiaForce);
+        System.out.println("friction: " + frictionForce);
+        System.out.println("aero drag: " + aerodynamicDrag);
+
+        return Math.max(v.getKmphSpeed() * ((inertiaForce + frictionForce + aerodynamicDrag)), 0);
     }
 
 }

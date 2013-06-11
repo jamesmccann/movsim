@@ -11,9 +11,9 @@ public class LightVehicleClass extends VehicleClass {
 
     /**
      * Constant representing the calorimetric energy density of petrol
-     * and diesel fuel, measured in kWh's per Litre (kWh/L)
+     * and diesel fuel, measured in Joules per Litre J/L
      */
-    private final double FUEL_ENERGY_DENSITY = 11;
+    private final double FUEL_ENERGY_DENSITY = Double.valueOf("3.6E+06").longValue();
 
     /**
      * Constrants representing the efficiency factor of the vehicle

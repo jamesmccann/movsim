@@ -13,7 +13,7 @@ public class TruckVehicleClass extends VehicleClass {
      * Constant representing the calorimetric energy density of petrol
      * and diesel fuel, measured in kWh's per Litre (kWh/L)
      */
-    private final double FUEL_ENERGY_DENSITY = 11;
+    private final double FUEL_ENERGY_DENSITY = Double.valueOf("3.6E+06").longValue();
 
     /**
      * Constrants representing the efficiency factor of the vehicle
@@ -24,7 +24,7 @@ public class TruckVehicleClass extends VehicleClass {
     /**
      * Average weight in kilograms
      */
-    private final double WEIGHT = 1500;
+    private final double WEIGHT = 15000;
 
     private final double FRICTION_COEFFICIENT = 0.02;
     private final double AERODYNAMIC_DRAG_COEFFICIENT = 0.3;

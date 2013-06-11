@@ -1194,7 +1194,7 @@ public class Vehicle {
     }
 
     public double getInstantaneousCost() {
-        return VehicleConsumption.instantaneousFuelConsumption(this);
+        return VehicleConsumption.instantaneousStopFuelCost(this);
     }
 
     @Override

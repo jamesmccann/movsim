@@ -15,20 +15,30 @@ public class VehicleConsumption {
         // no instantiation
     }
 
+    public static double instantaneousStopFuelCost(Vehicle v) {
+        double mass, approachVelocity, kEnergy, litres;
+        VehicleClass vc = v.getVehicleClass();
+
+        approachVelocity = v.getSpeed();
+        mass = vc.getWeight();
+
+        kEnergy = 0.5 * (mass * Math.pow(approachVelocity, 2));
+        litres = kEnergy / (vc.getEngineEfficiencyFactor() * (vc.getFuelEnergyDensity()));
+
+        return litres * vc.getFuelPricePerL();
+    }
+
     public static double instantaneousFuelConsumption(Vehicle v) {
         double consumptionRate, mass, consumptionPer100Km;
         VehicleClass vc = v.getVehicleClass();
 
         mass = vc.getWeight();
-//        consumptionRate = instantaneousEnginePower(v) / 
-//                (vc.getEngineEfficiencyFactor() * vc.getFuelEnergyDensity());
-        
+
         double enginePower = instantaneousEnginePower(v);
-        System.out.println(enginePower);
 
         consumptionPer100Km = (10000 / (vc.getEngineEfficiencyFactor() * vc.getFuelEnergyDensity()))
-                * (enginePower / v.getKmphSpeed());
-                
+                * (enginePower / v.getSpeed());
+
         return consumptionPer100Km;
     }
 
@@ -46,13 +56,9 @@ public class VehicleConsumption {
 
         frictionForce = mass * frictionC * GRAVITATIONAL_ACCELERATION;
         
-        aerodynamicDrag = 0.5 * dragC * AIR_DENSITY * crossSection * Math.pow(v.getKmphSpeed(), 2);
+        aerodynamicDrag = 0.5 * dragC * AIR_DENSITY * crossSection * Math.pow(v.getSpeed(), 2);
 
-        System.out.println("inertia: " + inertiaForce);
-        System.out.println("friction: " + frictionForce);
-        System.out.println("aero drag: " + aerodynamicDrag);
-
-        return Math.max(v.getKmphSpeed() * ((inertiaForce + frictionForce + aerodynamicDrag)), 0);
+        return Math.max(v.getSpeed() * ((inertiaForce + frictionForce + aerodynamicDrag)), 0);
     }
 
 }

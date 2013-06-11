@@ -17,7 +17,7 @@ public class VehicleUrgency {
      * field analysis
      * 
      */
-    private static double[] carUrgencyProbabilities = new double[] { 0.2, 0.25, 0.35, 0.15, 0.05 };
+    private static double[] carUrgencyProbabilities = new double[] { 0.2, 0.25, 0.395, 0.15, 0.005 };
     private static double[] busUrgencyProbabilities = new double[] { 0.3, 0.5, 0.2, 0.0, 0.0 };
     private static double[] truckUrgencyProbabilities = new double[] { 0.1, 0.5, 0.3, 0.1, 0.0 };
 

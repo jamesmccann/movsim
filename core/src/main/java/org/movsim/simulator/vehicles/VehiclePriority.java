@@ -1,5 +1,7 @@
 package org.movsim.simulator.vehicles;
 
+import java.util.Random;
+
 
 public class VehiclePriority {
 
@@ -29,17 +31,20 @@ public class VehiclePriority {
         this.vehicle = vehicle;
         if (vehicle.getVehicleClass().getClass() == TruckVehicleClass.class) {
             urgency = VehicleUrgency.sampleTruck();
+            numberOfPassengers = 1;
         }
         if (vehicle.getVehicleClass().getClass() == BusVehicleClass.class) {
             urgency = VehicleUrgency.sampleBus();
+            numberOfPassengers = 15; // average
         }
         if (vehicle.getVehicleClass().getClass() == LightVehicleClass.class) {
             urgency = VehicleUrgency.sampleCar();
+            numberOfPassengers = new Random().nextInt(5) + 1;
         }
     }
 
     /**
-     * The dollar value of petrol consumed when stopping the vehicle from its current
+     * The value of petrol consumed when stopping the vehicle from its current
      * speed, idling while delayed, and accelerating back to a cruise speed when the vehicle is requested to stop
      * at a traffic light.
      * 
@@ -47,6 +52,14 @@ public class VehiclePriority {
      */
     public double stoppingCost() {
         return 0.0;
+    }
+
+    public double passengersCost() {
+        return 1.1 * numberOfPassengers;
+    }
+
+    public double urgencyCost() {
+        return urgency;
     }
 
 }

@@ -69,6 +69,7 @@ public class TrafficLightApproaching {
     public void update(Vehicle me, TrafficLight trafficLight, double distanceToTrafficlight) {
         accTrafficLight = 0;
         considerTrafficLight = false;
+        this.distanceToTrafficlight = distanceToTrafficlight;
 
         if (distanceToTrafficlight > MAX_LOOK_AHEAD_DISTANCE) {
             LOG.debug("traffic light at distance={} to far away -- MAX_LOOK_AHEAD_DISTANCE={}", distanceToTrafficlight,

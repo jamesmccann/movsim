@@ -521,9 +521,11 @@ public class TrafficCanvas extends SimulationCanvasBase implements SimulationRun
 //                (int) polygon.yPoints[0]);
 //        
        //draw the vehicle instantaneous fuel cost
+        System.out.println(vehicle.getDistanceToTrafficlight());
         double delayCost = vehicle.getInstantaneousCost();
         if (vehicle.getSpeed() > 0 && delayCost > 0.025 
-                && vehicle.getDistanceToTrafficlight() < 10) {
+                && vehicle.getDistanceToTrafficlight() > 1 
+                && vehicle.getDistanceToTrafficlight() < 120) {
             g.drawString(String.format("$%.2f", vehicle.getInstantaneousCost()), 
                (int) polygon.xPoints[0], 
                (int) polygon.yPoints[0]+12);

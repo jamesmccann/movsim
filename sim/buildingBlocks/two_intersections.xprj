@@ -37,21 +37,21 @@
             <Road id="1">
                 <InitialConditions />
                 <TrafficSource logging="false">
-                    <Inflow t="0" q_per_hour="500" />
+                    <Inflow t="0" q_per_hour="300" />
                 </TrafficSource>
                 <Detectors />
             </Road>
             <Road id="3">
                 <InitialConditions />
                 <TrafficSource logging="false">
-                    <Inflow t="0" q_per_hour="500" />
+                    <Inflow t="0" q_per_hour="100" />
                 </TrafficSource>
                 <Detectors />
             </Road>
             <Road id="5">
                 <InitialConditions />
                 <TrafficSource logging="false">
-                    <Inflow t="5" q_per_hour="100" />
+                    <Inflow t="10" q_per_hour="100" />
                 </TrafficSource>
                 <Detectors />
             </Road>
@@ -85,8 +85,8 @@
             </ControllerGroup>
             <ControllerGroup id="plan2"  >
                 <Phase duration="25">
-                    <TrafficLightState name="first" status="Red" condition="request"/>
-                    <TrafficLightState name="second" status="Green" condition="clear"/>
+                    <TrafficLightState name="first" status="Red" />
+                    <TrafficLightState name="second" status="Green" />
                 </Phase>
                 <Phase duration="8">
                     <TrafficLightState name="first" status="Red" />
@@ -96,15 +96,15 @@
                     <TrafficLightState name="first" status="Red" />
                     <TrafficLightState name="second" status="Red" />
                 </Phase>
-                <Phase duration="25">
-                    <TrafficLightState name="first" status="Green" condition="clear"/>
+                <Phase duration="30">
+                    <TrafficLightState name="first" status="Green" />
                     <TrafficLightState name="second" status="Red" />
                 </Phase>
                 <Phase duration="8">
                     <TrafficLightState name="first" status="GreenRed" />
                     <TrafficLightState name="second" status="Red" />
                 </Phase>
-                <Phase duration="8">
+                <Phase duration="30">
                     <TrafficLightState name="first" status="Red" />
                     <TrafficLightState name="second" status="Red" />
                 </Phase>

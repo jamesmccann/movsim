@@ -137,4 +137,12 @@ public class TrafficLight {
                 + ", roadSegment.id=" + ((roadSegment == null) ? "null" : roadSegment.id()) + "]";
     }
 
+    public double getPhaseTime() {
+        return triggerCallback.getPhaseTime();
+    }
+
+    public double getGapTime() {
+        return triggerCallback.getGapTime();
+    }
+
 }

@@ -35,23 +35,26 @@
                 <VehicleType label="IDM2" fraction="0.2" relative_v0_randomization="0.2" />
             </TrafficComposition>
             <Road id="1">
+                <TrafficComposition>
+                    <VehicleType label="IDM2" fraction="1" relative_v0_randomization="0.5" />
+                </TrafficComposition>
                 <InitialConditions />
                 <TrafficSource logging="false">
-                    <Inflow t="0" q_per_hour="500" />
+                    <Inflow t="0" q_per_hour="200" />
                 </TrafficSource>
                 <Detectors />
             </Road>
             <Road id="3">
                 <InitialConditions />
                 <TrafficSource logging="false">
-                    <Inflow t="0" q_per_hour="500" />
+                    <Inflow t="0" q_per_hour="10" />
                 </TrafficSource>
                 <Detectors />
             </Road>
         </Simulation>
         <TrafficLights logging="true" n_timestep="5">
-            <ControllerGroup id="plan1"  >
-                <Phase duration="30">
+            <ControllerGroup id="plan1" range="20">
+                <Phase duration="60" min="15" max="60">
                     <TrafficLightState name="first" status="Red" condition="request"/>
                     <TrafficLightState name="second" status="Green" condition="clear"/>
                 </Phase>
@@ -63,9 +66,9 @@
                     <TrafficLightState name="first" status="Red" />
                     <TrafficLightState name="second" status="Red" />
                 </Phase>
-                <Phase duration="30">
+                <Phase duration="60" min="15" max="60">
                     <TrafficLightState name="first" status="Green" condition="clear"/>
-                    <TrafficLightState name="second" status="Red" />
+                    <TrafficLightState name="second" status="Red" condition="request" />
                 </Phase>
                 <Phase duration="8">
                     <TrafficLightState name="first" status="GreenRed" />

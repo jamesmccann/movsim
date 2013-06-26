@@ -54,6 +54,7 @@ import org.movsim.simulator.roadnetwork.Slope;
 import org.movsim.simulator.roadnetwork.SpeedLimit;
 import org.movsim.simulator.roadnetwork.TrafficSink;
 import org.movsim.simulator.trafficlights.TrafficLight;
+import org.movsim.simulator.trafficlights.TrafficLightControlGroup;
 import org.movsim.simulator.trafficlights.TrafficLightLocation;
 import org.movsim.simulator.vehicles.Vehicle;
 import org.movsim.utilities.Colors;
@@ -493,6 +494,9 @@ public class TrafficCanvas extends SimulationCanvasBase implements SimulationRun
                     drawVehicle(g, simulationTime, roadMapping, vehicle);
                 }
             }
+            for (final TrafficLightControlGroup controlGroup : simulator.getTrafficLights().getTrafficLightControlGroups()) {
+                drawTrafficLightControlTimes(g, controlGroup);
+            }
             totalAnimationTime += System.currentTimeMillis() - timeBeforePaint_ms;
             drawAfterVehiclesMoved(g, simulationRunnable.simulationTime(), simulationRunnable.iterationCount());
         }
@@ -753,6 +757,15 @@ public class TrafficCanvas extends SimulationCanvasBase implements SimulationRun
                 break;
             }
         }
+    }
+    
+    private static void drawTrafficLightControlTimes(Graphics2D g, TrafficLightControlGroup controlGroup){
+        g.setColor(Color.BLACK);
+        g.drawString("Signal Controller: " + controlGroup.groupId(), 10, 15);
+        g.drawString("Phase duration: " + String.format("%.2f", controlGroup.getPhaseTime()), 30, 30); 
+        
+        g.setColor(Color.MAGENTA);
+        g.drawString("Gap timer: " + String.format("%.2f", controlGroup.getGapTime()), 30, 45);
     }
 
     private void drawSpeedLimits(Graphics2D g) {

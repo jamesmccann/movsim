@@ -188,6 +188,10 @@ public class Simulator implements SimulationTimeStep, SimulationRun.CompletionCa
         return simulationRunnable;
     }
 
+    public TrafficLights getTrafficLights() {
+        return trafficLights;
+    }
+
     /**
      * Load scenario from xml.
      * 

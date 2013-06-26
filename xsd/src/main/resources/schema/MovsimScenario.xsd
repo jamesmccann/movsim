@@ -647,6 +647,7 @@
             <xs:attribute name="id" type="xs:string" use="required" />
             <!-- spatial range for checking conditions in meters -->
             <xs:attribute name="range" type="positiveDouble" default="100" />
+            <xs:attribute name="gap" type="positiveDouble" default="3" />
         </xs:complexType>
     </xs:element>
     <xs:element name="Phase">
@@ -655,6 +656,8 @@
                 <xs:element ref="TrafficLightState" minOccurs="1" maxOccurs="unbounded" />
             </xs:sequence>
             <xs:attribute name="duration" type="nonNegativeDouble" use="required" />
+            <xs:attribute name="min" type="nonNegativeDouble" default="6"/>
+            <xs:attribute name="max" type="nonNegativeDouble" default="180"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="TrafficLightState">

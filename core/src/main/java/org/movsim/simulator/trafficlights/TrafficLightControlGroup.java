@@ -8,6 +8,7 @@ import org.movsim.autogen.ControllerGroup;
 import org.movsim.autogen.Phase;
 import org.movsim.autogen.TrafficLightCondition;
 import org.movsim.autogen.TrafficLightState;
+import org.movsim.autogen.TrafficLightStatus;
 import org.movsim.simulator.SimulationTimeStep;
 import org.movsim.simulator.roadnetwork.LaneSegment;
 import org.movsim.simulator.vehicles.Vehicle;
@@ -17,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
-class TrafficLightControlGroup implements SimulationTimeStep, TriggerCallback {
+public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCallback {
 
     /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(TrafficLightControlGroup.class);
@@ -32,7 +33,11 @@ class TrafficLightControlGroup implements SimulationTimeStep, TriggerCallback {
 
     private double currentPhaseDuration;
 
+    private double currentGapTime;
+
     private final double conditionRange;
+
+    private final double conditionGapTime;
 
     /** mapping from the signal's name to the trafficlight */
     private final Map<String, TrafficLight> trafficLights = new HashMap<>();
@@ -42,6 +47,7 @@ class TrafficLightControlGroup implements SimulationTimeStep, TriggerCallback {
         this.groupId = controllerGroup.getId();
         this.firstSignalId = firstSignalId;
         this.conditionRange = controllerGroup.getRange();
+        this.conditionGapTime = controllerGroup.getGap();
         this.phases = ImmutableList.copyOf(controllerGroup.getPhase()); // deep copy
         createTrafficlights();
     }
@@ -63,8 +69,10 @@ class TrafficLightControlGroup implements SimulationTimeStep, TriggerCallback {
     @Override
     public void timeStep(double dt, double simulationTime, long iterationCount) {
         currentPhaseDuration += dt;
-        determinePhase();
-        updateTrafficLights();
+        Phase phase = phases.get(currentPhaseIndex);
+        updateGapTimer(phase);
+        determinePhase(phase);
+        updateTrafficLights(phase);
         if (recordDataCallback != null) {
             recordDataCallback.recordData(simulationTime, iterationCount, trafficLights.values());
         }
@@ -74,35 +82,39 @@ class TrafficLightControlGroup implements SimulationTimeStep, TriggerCallback {
     public void nextPhase() {
         LOG.debug("triggered next phase for controller group.");
         currentPhaseDuration = 0; // reset
+        currentGapTime = 0;
         setNextPhaseIndex();
     }
 
-    private void determinePhase() {
-        Phase phase = phases.get(currentPhaseIndex);
+    private void determinePhase(Phase phase) {
         // first check if all "clear" conditions are fullfilled.
-        // then check fixed-time schedule for next phase
-        // and last check trigger condition for overriding fixed-time scheduler
-        if (isClearConditionsFullfilled(phase)
-                && (currentPhaseDuration > phase.getDuration() || isTriggerConditionFullfilled(phase))) {
+        // then check fixed-time schedule for minimum time conditions
+        // and last check gap timer for overriding fixed-time scheduler
+        if ((currentPhaseDuration > phase.getMin() && isTriggerConditionFullfilled(phase))
+                || currentPhaseDuration >= phase.getDuration()) {
             nextPhase();
         }
     }
 
-    private boolean isClearConditionsFullfilled(Phase phase) {
-        for (TrafficLightState state : phase.getTrafficLightState()) {
-            if (state.getCondition() == TrafficLightCondition.CLEAR) {
-                if (vehicleIsInFrontOfLightAndDriving(trafficLights.get(state.getName()))) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
+//    private boolean isClearConditionsFullfilled(Phase phase) {
+//        for (TrafficLightState state : phase.getTrafficLightState()) {
+//            if (state.getCondition() == TrafficLightCondition.CLEAR) {
+//                if (vehicleIsInFrontOfLightAndDriving(trafficLights.get(state.getName()))) {
+//                    return false;
+//                }
+//            }
+//        }
+//        return true;
+//    }
 
     private boolean isTriggerConditionFullfilled(Phase phase) {
+        // check and request via gap timer
         for (TrafficLightState state : phase.getTrafficLightState()) {
             if (state.getCondition() == TrafficLightCondition.REQUEST) {
-                if (vehicleIsInFrontOfLight(trafficLights.get(state.getName()))) {
+                TrafficLight light = trafficLights.get(state.getName());
+                if (vehicleIsInFrontOfLight(light)
+                        && gapTimeoutConditionFulfilled()) {
+                    LOG.info("phase gapping out: {}, duration: {}", light.name(), currentPhaseDuration);
                     return true;
                 }
             }
@@ -135,11 +147,24 @@ class TrafficLightControlGroup implements SimulationTimeStep, TriggerCallback {
         return false;
     }
 
-    private void updateTrafficLights() {
-        Phase actualPhase = phases.get(currentPhaseIndex);
+    private void updateTrafficLights(Phase actualPhase) {
         for (TrafficLightState trafficLightState : actualPhase.getTrafficLightState()) {
             trafficLights.get(trafficLightState.getName()).setState(trafficLightState.getStatus());
         }
+    }
+    
+    private void updateGapTimer(Phase phase) {
+        for (TrafficLightState state : phase.getTrafficLightState()) {
+            if (state.getStatus() == TrafficLightStatus.GREEN) {
+                if (vehicleIsInFrontOfLight(trafficLights.get(state.getName()))) {
+                    currentGapTime = 0;
+                }
+            }
+        }
+    }
+
+    public boolean gapTimeoutConditionFulfilled() {
+        return currentGapTime > conditionGapTime;
     }
 
     Iterable<TrafficLight> trafficLights() {
@@ -183,6 +208,14 @@ class TrafficLightControlGroup implements SimulationTimeStep, TriggerCallback {
 
     public void setRecorder(RecordDataCallback recordDataCallback) {
         this.recordDataCallback = recordDataCallback;
+    }
+
+    public double getPhaseTime() {
+        return currentPhaseDuration;
+    }
+
+    public double getGapTime() {
+        return currentGapTime;
     }
 
 }

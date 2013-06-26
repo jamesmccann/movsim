@@ -149,4 +149,8 @@ public class TrafficLights implements SimulationTimeStep {
         }
     }
 
+    public List<TrafficLightControlGroup> getTrafficLightControlGroups() {
+        return trafficLightControlGroups;
+    }
+
 }

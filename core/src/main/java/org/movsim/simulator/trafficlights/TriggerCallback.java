@@ -7,4 +7,14 @@ public interface TriggerCallback {
      */
     void nextPhase();
 
+    /**
+     * Get the current phase time of the controller group
+     */
+    double getPhaseTime();
+
+    /**
+     * Get the current gap timer of the controller group
+     */
+    double getGapTime();
+
 }

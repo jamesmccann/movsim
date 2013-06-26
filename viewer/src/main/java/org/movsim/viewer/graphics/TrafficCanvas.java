@@ -520,12 +520,11 @@ public class TrafficCanvas extends SimulationCanvasBase implements SimulationRun
         g.setFont(font);
         g.setColor(Color.BLACK);
         
-//        g.drawString(Integer.toString(vehicle.getPriority().urgency), 
-//                (int) polygon.xPoints[0], 
-//                (int) polygon.yPoints[0]);
-//        
+        g.drawString(Integer.toString(vehicle.getPriority().urgency), 
+                (int) polygon.xPoints[0], 
+                (int) polygon.yPoints[0]);
+        
        //draw the vehicle instantaneous fuel cost
-        System.out.println(vehicle.getDistanceToTrafficlight());
         double delayCost = vehicle.getInstantaneousCost();
         if (vehicle.getSpeed() > 0 && delayCost > 0.025 
                 && vehicle.getDistanceToTrafficlight() > 1 

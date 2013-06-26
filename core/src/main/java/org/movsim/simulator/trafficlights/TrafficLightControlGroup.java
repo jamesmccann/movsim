@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.movsim.autogen.ControllerGroup;
 import org.movsim.autogen.Phase;
-import org.movsim.autogen.TrafficLightCondition;
 import org.movsim.autogen.TrafficLightState;
 import org.movsim.autogen.TrafficLightStatus;
 import org.movsim.simulator.SimulationTimeStep;
@@ -82,42 +81,24 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
     @Override
     public void nextPhase() {
         LOG.debug("triggered next phase for controller group.");
-        currentPhaseDuration = 0; // reset
-        currentGapTime = 0;
         setNextPhaseIndex();
     }
 
     private void determinePhase(Phase phase) {
-        // first check if all "clear" conditions are fullfilled.
-        // then check fixed-time schedule for minimum time conditions
+        // Check fixed-time schedule for minimum time conditions
         // and last check gap timer for overriding fixed-time scheduler
-        if ((currentPhaseDuration > phase.getMin() && isTriggerConditionFullfilled(phase))
-                || currentPhaseDuration >= phase.getDuration()) {
+        if ((currentPhaseDuration > phase.getMin() && gapTimeoutConditionFulfilled())
+                || (currentPhaseDuration >= phase.getDuration())) {
             nextPhase();
         }
     }
 
-//    private boolean isClearConditionsFullfilled(Phase phase) {
-//        for (TrafficLightState state : phase.getTrafficLightState()) {
-//            if (state.getCondition() == TrafficLightCondition.CLEAR) {
-//                if (vehicleIsInFrontOfLightAndDriving(trafficLights.get(state.getName()))) {
-//                    return false;
-//                }
-//            }
-//        }
-//        return true;
-//    }
-
     private boolean isTriggerConditionFullfilled(Phase phase) {
         // check and request via gap timer
         for (TrafficLightState state : phase.getTrafficLightState()) {
-            if (state.getCondition() == TrafficLightCondition.REQUEST) {
-                TrafficLight light = trafficLights.get(state.getName());
-                if (vehicleIsInFrontOfLight(light)
-                        && gapTimeoutConditionFulfilled()) {
-                    LOG.info("phase gapping out: {}, duration: {}", light.name(), currentPhaseDuration);
-                    return true;
-                }
+            TrafficLight light = trafficLights.get(state.getName());
+            if (state.getStatus() == TrafficLightStatus.RED && vehicleIsInFrontOfLight(light)) {
+                return true;
             }
         }
         return false;
@@ -177,12 +158,34 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
                 + "\" not defined in controllerGroup=" + groupId);
     }
 
+
     private void setNextPhaseIndex() {
-        if (currentPhaseIndex == phases.size() - 1) {
-            currentPhaseIndex = 0;
-            return;
+        // attempt to move to the "next" available phase based on
+        // ordering of phase index. Continue until a phase with
+        // demand is chosen
+        int targetPhaseIndex = currentPhaseIndex;
+        while (true) {
+            if (targetPhaseIndex == phases.size() - 1) {
+                targetPhaseIndex = 0;
+            } else {
+                targetPhaseIndex++;
+            }
+
+            if (targetPhaseIndex == currentPhaseIndex) {
+                break;
+            }
+
+            Phase targetPhase = phases.get(targetPhaseIndex);
+            if (isTriggerConditionFullfilled(targetPhase)) {
+                break;
+            }
         }
-        currentPhaseIndex++;
+
+        if (targetPhaseIndex != currentPhaseIndex) {
+            currentPhaseDuration = 0;
+            currentGapTime = 0;
+            currentPhaseIndex = targetPhaseIndex;
+        }
     }
 
     public String groupId() {

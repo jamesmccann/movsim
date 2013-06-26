@@ -69,6 +69,7 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
     @Override
     public void timeStep(double dt, double simulationTime, long iterationCount) {
         currentPhaseDuration += dt;
+        currentGapTime += dt;
         Phase phase = phases.get(currentPhaseIndex);
         updateGapTimer(phase);
         determinePhase(phase);

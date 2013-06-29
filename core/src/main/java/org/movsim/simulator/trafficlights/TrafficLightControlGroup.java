@@ -40,6 +40,8 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
     private double currentAllRedDuration;
 
     private double currentGapTime;
+    
+    private double currentMaximumDuration;
 
     private final double conditionRange;
 
@@ -89,6 +91,7 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
         currentGapTime += dt;
         if (intergreen) { currentIntergreenDuration += dt; }
         if (allRed) { currentAllRedDuration += dt; }
+        if (nextPhaseIndex != -1) { currentMaximumDuration += dt; }
 
         Phase phase = phases.get(currentPhaseIndex);
         updateGapTimer(phase);
@@ -99,14 +102,18 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
     }
 
     private void determinePhase(Phase phase) {
-        // Check fixed-time schedule for minimum time conditions
-        // and last check gap timer for overriding fixed-time scheduler
-        if (nextPhaseIndex == -1
-                && ((currentPhaseDuration + phase.getIntergreen() + phase.getAllRed() >= phase.getDuration())
-                        || (currentPhaseDuration > phase.getMin() && gapTimeoutConditionFulfilled()))) {
+        // if the current phase has extended beyond its minimum time
+        // and a phase change is possible, check if any other phases
+        // are demanded and assign the next target phase
+
+        // if the next phase has been set, check to see if the change
+        // should be made based on gap timer or max green conditions
+        if (nextPhaseIndex == -1) {
             setNextPhaseIndex();
+        } else if (phaseMinimumConditionFulfilled(phase)
+                && (gapTimeoutConditionFulfilled() || phaseMaximumConditionFulfilled(phase))) {
+            updatePhase(phase);
         }
-        updatePhase(phase);
     }
 
     public void updatePhase(Phase phase) {
@@ -141,6 +148,7 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
         currentPhaseDuration = 0;
         currentIntergreenDuration = 0;
         currentAllRedDuration = 0;
+        currentMaximumDuration = 0;
         updateTrafficLights(phases.get(currentPhaseIndex));
     }
 
@@ -221,6 +229,18 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
         return currentGapTime > conditionGapTime;
     }
 
+    public boolean phaseDurationConditionFulfilled(Phase phase) {
+        return currentPhaseDuration + phase.getIntergreen() + phase.getAllRed() >= phase.getDuration();
+    }
+
+    public boolean phaseMaximumConditionFulfilled(Phase phase) {
+        return currentMaximumDuration + phase.getIntergreen() + phase.getAllRed() > phase.getMax();
+    }
+
+    public boolean phaseMinimumConditionFulfilled(Phase phase) {
+        return currentPhaseDuration > phase.getMin();
+    }
+
     Iterable<TrafficLight> trafficLights() {
         return ImmutableList.copyOf(trafficLights.values().iterator());
     }
@@ -229,7 +249,6 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
         return Preconditions.checkNotNull(trafficLights.get(signalName), "signalName=\"" + signalName
                 + "\" not defined in controllerGroup=" + groupId);
     }
-
 
     private void setNextPhaseIndex() {
         // attempt to move to the "next" available phase based on

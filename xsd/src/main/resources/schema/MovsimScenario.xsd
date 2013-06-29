@@ -647,7 +647,7 @@
             <xs:attribute name="id" type="xs:string" use="required" />
             <!-- spatial range for checking conditions in meters -->
             <xs:attribute name="range" type="positiveDouble" default="100" />
-            <xs:attribute name="gap" type="positiveDouble" default="3" />
+            <xs:attribute name="gap" type="positiveDouble" default="12" />
         </xs:complexType>
     </xs:element>
     <xs:element name="Phase">

@@ -102,7 +102,8 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
         // Check fixed-time schedule for minimum time conditions
         // and last check gap timer for overriding fixed-time scheduler
         if (nextPhaseIndex == -1
-                && currentPhaseDuration + phase.getIntergreen() + phase.getAllRed() >= phase.getDuration()) {
+                && ((currentPhaseDuration + phase.getIntergreen() + phase.getAllRed() >= phase.getDuration())
+                        || (currentPhaseDuration > phase.getMin() && gapTimeoutConditionFulfilled()))) {
             setNextPhaseIndex();
         }
         updatePhase(phase);
@@ -112,7 +113,7 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
         if (nextPhaseIndex == -1) { return; } //no update required
         
         // check if we need to initiate a phase change
-        if (!intergreen && currentPhaseDuration + phase.getIntergreen() + phase.getAllRed() >= phase.getDuration()) {
+        if (!intergreen && currentIntergreenDuration == 0) {
             LOG.info("setting current phase to intergreen");
             setIntergreen(phase);
         }
@@ -158,8 +159,7 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
     private boolean vehicleIsInFrontOfLight(TrafficLight trafficLight) {
         for (LaneSegment laneSegment : trafficLight.roadSegment().laneSegments()) {
             Vehicle vehicle = laneSegment.rearVehicle(trafficLight.position());
-            if (vehicle != null && vehicle.getSpeed() == 0
-                    && (trafficLight.position() - vehicle.getFrontPosition() < conditionRange)) {
+            if (vehicle != null && (trafficLight.position() - vehicle.getFrontPosition() < conditionRange)) {
                 LOG.debug("condition check: vehicle is in front of trafficlight: vehPos={}, trafficlightPos={}",
                         vehicle.getFrontPosition(), trafficLight.position());
                 return true;

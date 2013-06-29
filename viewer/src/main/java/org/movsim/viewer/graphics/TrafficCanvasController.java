@@ -148,4 +148,8 @@ public class TrafficCanvasController {
         roadNetwork.onLowMemory();
         trafficCanvas.resume();
     }
+    
+    void commandTriggerSourceVehicle() {
+        
+    }
 }

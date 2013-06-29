@@ -53,29 +53,13 @@
             </Road>
         </Simulation>
         <TrafficLights logging="true" n_timestep="5">
-            <ControllerGroup id="plan1" range="20">
-                <Phase duration="60" min="15" max="60">
-                    <TrafficLightState name="first" status="Red" condition="request"/>
-                    <TrafficLightState name="second" status="Green" condition="clear"/>
-                </Phase>
-                <Phase duration="8">
+            <ControllerGroup id="plan1" range="10" gap="12">
+                <Phase duration="60" min="15" max="60" intergreen="8" all_red="2">
                     <TrafficLightState name="first" status="Red" />
-                    <TrafficLightState name="second" status="GreenRed" />
+                    <TrafficLightState name="second" status="Green" condition="request" />
                 </Phase>
-                <Phase duration="8">
-                    <TrafficLightState name="first" status="Red" />
-                    <TrafficLightState name="second" status="Red" />
-                </Phase>
-                <Phase duration="60" min="15" max="60">
-                    <TrafficLightState name="first" status="Green" condition="clear"/>
-                    <TrafficLightState name="second" status="Red" condition="request" />
-                </Phase>
-                <Phase duration="8">
-                    <TrafficLightState name="first" status="GreenRed" />
-                    <TrafficLightState name="second" status="Red" />
-                </Phase>
-                <Phase duration="8">
-                    <TrafficLightState name="first" status="Red" />
+                <Phase duration="60" min="15" max="60" intergreen="8" all_red="2">
+                    <TrafficLightState name="first" status="Green" condition="request" />
                     <TrafficLightState name="second" status="Red" />
                 </Phase>
             </ControllerGroup>

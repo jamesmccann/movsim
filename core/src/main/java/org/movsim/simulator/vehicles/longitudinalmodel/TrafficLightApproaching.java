@@ -93,7 +93,7 @@ public class TrafficLightApproaching {
                 // ignore traffic light if accTL exceeds two times comfortable
                 // deceleration or if kinematic braking is not possible anymore
 
-                if (trafficLight.status() == TrafficLightStatus.GREEN_RED) {
+                if (trafficLight.status() == TrafficLightStatus.AMBER) {
                     final double bKinMax = 6; // typical value: bIDM < comfortBrakeDecel < bKinMax < bMax
                     final double comfortBrakeDecel = 4;
                     final double brakeDist = (me.getSpeed() * me.getSpeed()) / (2 * bKinMax);

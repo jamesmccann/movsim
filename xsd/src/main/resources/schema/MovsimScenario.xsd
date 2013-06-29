@@ -658,6 +658,8 @@
             <xs:attribute name="duration" type="nonNegativeDouble" use="required" />
             <xs:attribute name="min" type="nonNegativeDouble" default="6"/>
             <xs:attribute name="max" type="nonNegativeDouble" default="180"/>
+            <xs:attribute name="intergreen" type="nonNegativeDouble" use="optional"/>
+            <xs:attribute name="all_red" type="nonNegativeDouble" use="optional"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="TrafficLightState">
@@ -671,9 +673,8 @@
     <xs:simpleType name="TrafficLightStatus">
         <xs:restriction base="xs:string">
             <xs:enumeration value="Red" />
-            <xs:enumeration value="RedGreen" />
             <xs:enumeration value="Green" />
-            <xs:enumeration value="GreenRed" />
+            <xs:enumeration value="Amber" />
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="TrafficLightCondition">

@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.movsim.autogen.ControllerGroup;
 import org.movsim.autogen.Phase;
+import org.movsim.autogen.TrafficLightCondition;
 import org.movsim.autogen.TrafficLightState;
 import org.movsim.autogen.TrafficLightStatus;
 import org.movsim.simulator.SimulationTimeStep;
@@ -30,13 +31,23 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
 
     private int currentPhaseIndex = 0;
 
+    private int nextPhaseIndex = -1;
+
     private double currentPhaseDuration;
+
+    private double currentIntergreenDuration;
+
+    private double currentAllRedDuration;
 
     private double currentGapTime;
 
     private final double conditionRange;
 
     private final double conditionGapTime;
+
+    private boolean intergreen;
+
+    private boolean allRed;
 
     /** mapping from the signal's name to the trafficlight */
     private final Map<String, TrafficLight> trafficLights = new HashMap<>();
@@ -49,16 +60,23 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
         this.conditionGapTime = controllerGroup.getGap();
         this.phases = ImmutableList.copyOf(controllerGroup.getPhase()); // deep copy
         createTrafficlights();
+        updateTrafficLights(phases.get(currentPhaseIndex));
     }
 
     private void createTrafficlights() {
         for (Phase phase : phases) {
+            TrafficLight trafficLight = null;
             for (TrafficLightState trafficlightState : phase.getTrafficLightState()) {
                 String name = Preconditions.checkNotNull(trafficlightState.getName());
-                TrafficLight trafficLight = trafficLights.get(name);
+                trafficLight = trafficLights.get(name);
                 if (trafficLight == null) {
                     trafficLight = new TrafficLight(name, groupId, this);
                     trafficLights.put(name, trafficLight);
+
+                    // need amber state during intergreen period, created once only
+                    if (phase.getIntergreen() > 0) {
+                        trafficLight.addPossibleState(TrafficLightStatus.AMBER);
+                    }
                 }
                 trafficLight.addPossibleState(trafficlightState.getStatus());
             }
@@ -69,35 +87,68 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
     public void timeStep(double dt, double simulationTime, long iterationCount) {
         currentPhaseDuration += dt;
         currentGapTime += dt;
+        if (intergreen) { currentIntergreenDuration += dt; }
+        if (allRed) { currentAllRedDuration += dt; }
+
         Phase phase = phases.get(currentPhaseIndex);
         updateGapTimer(phase);
         determinePhase(phase);
-        updateTrafficLights(phase);
         if (recordDataCallback != null) {
             recordDataCallback.recordData(simulationTime, iterationCount, trafficLights.values());
         }
     }
 
-    @Override
-    public void nextPhase() {
-        LOG.debug("triggered next phase for controller group.");
-        setNextPhaseIndex();
-    }
-
     private void determinePhase(Phase phase) {
         // Check fixed-time schedule for minimum time conditions
         // and last check gap timer for overriding fixed-time scheduler
-        if ((currentPhaseDuration > phase.getMin() && gapTimeoutConditionFulfilled())
-                || (currentPhaseDuration >= phase.getDuration())) {
+        if (nextPhaseIndex == -1
+                && currentPhaseDuration + phase.getIntergreen() + phase.getAllRed() >= phase.getDuration()) {
+            setNextPhaseIndex();
+        }
+        updatePhase(phase);
+    }
+
+    public void updatePhase(Phase phase) {
+        if (nextPhaseIndex == -1) { return; } //no update required
+        
+        // check if we need to initiate a phase change
+        if (!intergreen && currentPhaseDuration + phase.getIntergreen() + phase.getAllRed() >= phase.getDuration()) {
+            LOG.info("setting current phase to intergreen");
+            setIntergreen(phase);
+        }
+
+        // check if a current intergreen period has finished, start all red period
+        if (!allRed && currentIntergreenDuration >= phase.getIntergreen()) {
+            LOG.info("setting current phase to allred");
+            setAllRed(phase);
+        }
+
+        // check if a current all red period has finished, go to the next phase
+        if (currentAllRedDuration >= phase.getAllRed()) {
+            LOG.info("setting next phase");
             nextPhase();
         }
     }
 
+    @Override
+    public void nextPhase() {
+        currentPhaseIndex = nextPhaseIndex;
+        nextPhaseIndex = -1;
+        intergreen = false;
+        allRed = false;
+        currentGapTime = 0;
+        currentPhaseDuration = 0;
+        currentIntergreenDuration = 0;
+        currentAllRedDuration = 0;
+        updateTrafficLights(phases.get(currentPhaseIndex));
+    }
+
+
     private boolean isTriggerConditionFullfilled(Phase phase) {
-        // check and request via gap timer
         for (TrafficLightState state : phase.getTrafficLightState()) {
             TrafficLight light = trafficLights.get(state.getName());
-            if (state.getStatus() == TrafficLightStatus.RED && vehicleIsInFrontOfLight(light)) {
+            if (state.getCondition() == TrafficLightCondition.REQUEST && vehicleIsInFrontOfLight(light)) {
+                LOG.debug("trigger fulfilled for trafficLight " + state.getName());
                 return true;
             }
         }
@@ -107,7 +158,8 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
     private boolean vehicleIsInFrontOfLight(TrafficLight trafficLight) {
         for (LaneSegment laneSegment : trafficLight.roadSegment().laneSegments()) {
             Vehicle vehicle = laneSegment.rearVehicle(trafficLight.position());
-            if (vehicle != null && (trafficLight.position() - vehicle.getFrontPosition() < conditionRange)) {
+            if (vehicle != null && vehicle.getSpeed() == 0
+                    && (trafficLight.position() - vehicle.getFrontPosition() < conditionRange)) {
                 LOG.debug("condition check: vehicle is in front of trafficlight: vehPos={}, trafficlightPos={}",
                         vehicle.getFrontPosition(), trafficLight.position());
                 return true;
@@ -140,9 +192,29 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
             if (state.getStatus() == TrafficLightStatus.GREEN) {
                 if (vehicleIsInFrontOfLight(trafficLights.get(state.getName()))) {
                     currentGapTime = 0;
+                    return;
                 }
             }
         }
+    }
+
+    private void setIntergreen(Phase phase) {
+        // set any green lights to yellow for the duration of the intergreen period
+        // red lights should not change
+        for (TrafficLightState state : phase.getTrafficLightState()) {
+            if (state.getStatus() == TrafficLightStatus.GREEN) {
+                trafficLights.get(state.getName()).setState(TrafficLightStatus.AMBER);
+            }
+        }
+        intergreen = true;
+    }
+
+    private void setAllRed(Phase phase) {
+        // set all lights red for the duration of the all_red period
+        for (TrafficLightState state : phase.getTrafficLightState()) {
+            trafficLights.get(state.getName()).setState(TrafficLightStatus.RED);
+        }
+        allRed = true;
     }
 
     public boolean gapTimeoutConditionFulfilled() {
@@ -182,9 +254,7 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
         }
 
         if (targetPhaseIndex != currentPhaseIndex) {
-            currentPhaseDuration = 0;
-            currentGapTime = 0;
-            currentPhaseIndex = targetPhaseIndex;
+            nextPhaseIndex = targetPhaseIndex;
         }
     }
 

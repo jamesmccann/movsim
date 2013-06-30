@@ -647,7 +647,7 @@ public class Vehicle {
         accModel = calcAccModel(laneSegment, leftLaneSegment, alphaTLocal, alphaV0Local, alphaALocal);
 
         // moderate acceleration by traffic lights or for preparing mandatory lane changes to exit sliproads
-        acc = moderateAcceleration(accModel, roadSegment);
+        acc = moderateAcceleration(dt, accModel, roadSegment);
 
         acc = Math.max(acc + accError, -maxDeceleration); // limited to maximum deceleration
     }
@@ -662,13 +662,13 @@ public class Vehicle {
      * @param roadSegment
      * @return moderated acceleration
      */
-    protected final double moderateAcceleration(double acc, RoadSegment roadSegment) {
+    protected final double moderateAcceleration(double dt, double acc, RoadSegment roadSegment) {
         double moderatedAcc = acc;
         // if (acc < -7.5) {
         //     System.out.println("High braking, vehicle:" + id + " acc:" + acc); //$NON-NLS-1$ //$NON-NLS-2$
         // }
         if (trafficLightApproaching != null) {
-            moderatedAcc = accelerationConsideringTrafficLight(moderatedAcc, roadSegment);
+            moderatedAcc = accelerationConsideringTrafficLight(dt, moderatedAcc, roadSegment);
         }
         moderatedAcc = accelerationConsideringExit(moderatedAcc, roadSegment);
         return moderatedAcc;
@@ -681,13 +681,13 @@ public class Vehicle {
      * 
      * @return acceleration considering traffic light
      */
-    protected double accelerationConsideringTrafficLight(double acc, RoadSegment roadSegment) {
+    protected double accelerationConsideringTrafficLight(double dt, double acc, RoadSegment roadSegment) {
         double moderatedAcc = acc;
         TrafficLightLocationWithDistance location = roadSegment.getNextDownstreamTrafficLight(
                 getFrontPosition(), lane(), TrafficLightApproaching.MAX_LOOK_AHEAD_DISTANCE);
         if (location != null) {
             LOG.debug("consider trafficlight={}", location.toString());
-            updateTrafficLightApproaching(location.trafficLightLocation, location.distance);
+            updateTrafficLightApproaching(dt, location.trafficLightLocation, location.distance);
             if (trafficLightApproaching.considerTrafficLight()) {
                 moderatedAcc = Math.min(acc, trafficLightApproaching.accApproaching());
             }
@@ -695,9 +695,9 @@ public class Vehicle {
         return moderatedAcc;
     }
 
-    private void updateTrafficLightApproaching(TrafficLightLocation trafficLightLocation, double distance) {
+    private void updateTrafficLightApproaching(double dt, TrafficLightLocation trafficLightLocation, double distance) {
         if (distance >= 0) {
-            trafficLightApproaching.update(this, trafficLightLocation.getTrafficLight(), distance);
+            trafficLightApproaching.update(dt, this, trafficLightLocation.getTrafficLight(), distance);
         } else {
             // vehicle has passed traffic light
             trafficLightLocation.getTrafficLight().removeVehicleApproach(this.id);

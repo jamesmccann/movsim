@@ -56,6 +56,11 @@ public class TrafficLightApproaching {
     private VehicleApproach lastBroadcastApproach;
 
     /**
+     * Seconds since last broadcast
+     */
+    private double lastBroadcastTime;
+
+    /**
      * Instantiates a new traffic light approaching.
      */
     public TrafficLightApproaching() {
@@ -71,7 +76,8 @@ public class TrafficLightApproaching {
      * @param distanceToTrafficlight
      * @param longModel
      */
-    public void update(Vehicle me, TrafficLight trafficLight, double distanceToTrafficlight) {
+    public void update(double dt, Vehicle me, TrafficLight trafficLight, double distanceToTrafficlight) {
+        lastBroadcastTime += dt;
         accTrafficLight = 0;
         considerTrafficLight = false;
         this.distanceToTrafficlight = distanceToTrafficlight;
@@ -83,10 +89,11 @@ public class TrafficLightApproaching {
         }
 
         // TODO: refactor this into its own class?
-        if (distanceToTrafficlight <= MAX_COMMUNICATION_RANGE) {
+        if (lastBroadcastTime > 2.0 && distanceToTrafficlight <= MAX_COMMUNICATION_RANGE) {
             // update the traffic light with the approach distance and priority/cost
             // for this vehicle
             updateAndBroadcastApproach(me, trafficLight);
+            lastBroadcastTime = 0;
         }
 
         if (trafficLight.status() == TrafficLightStatus.GREEN && me.getLength() > 30

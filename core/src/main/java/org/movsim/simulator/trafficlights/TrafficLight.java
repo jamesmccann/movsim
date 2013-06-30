@@ -25,7 +25,9 @@
  */
 package org.movsim.simulator.trafficlights;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.movsim.autogen.TrafficLightStatus;
@@ -58,10 +60,13 @@ public class TrafficLight {
 
     private RoadSegment roadSegment;
 
+    private Map<Long, VehicleApproach> approachVehicles;
+
     public TrafficLight(String name, String groupId, TriggerCallback triggerCallback) {
         this.name = name;
         this.groupId = groupId;
         this.triggerCallback = Preconditions.checkNotNull(triggerCallback);
+        this.approachVehicles = new HashMap<Long, VehicleApproach>();
     }
 
     /**
@@ -143,6 +148,14 @@ public class TrafficLight {
 
     public double getGapTime() {
         return triggerCallback.getGapTime();
+    }
+
+    public void addVehicleApproach(long vehicleId, VehicleApproach approach) {
+        approachVehicles.put(vehicleId, approach);
+    }
+
+    public void removeVehicleApproach(long vehicleId) {
+        approachVehicles.remove(vehicleId);
     }
 
 }

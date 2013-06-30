@@ -29,6 +29,7 @@ import org.movsim.autogen.TrafficLightStatus;
 import org.movsim.simulator.MovsimConstants;
 import org.movsim.simulator.roadnetwork.RoadSegment.TrafficLightLocationWithDistance;
 import org.movsim.simulator.trafficlights.TrafficLight;
+import org.movsim.simulator.trafficlights.VehicleApproach;
 import org.movsim.simulator.vehicles.Vehicle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,11 +45,15 @@ public class TrafficLightApproaching {
 
     public static final double MAX_LOOK_AHEAD_DISTANCE = 1000;
 
+    public static final double MAX_COMMUNICATION_RANGE = 150;
+
     private boolean considerTrafficLight;
 
     private double accTrafficLight;
 
     private double distanceToTrafficlight;
+
+    private VehicleApproach lastBroadcastApproach;
 
     /**
      * Instantiates a new traffic light approaching.
@@ -75,6 +80,13 @@ public class TrafficLightApproaching {
             LOG.debug("traffic light at distance={} to far away -- MAX_LOOK_AHEAD_DISTANCE={}", distanceToTrafficlight,
                     MAX_LOOK_AHEAD_DISTANCE);
             return;
+        }
+
+        // TODO: refactor this into its own class?
+        if (distanceToTrafficlight <= MAX_COMMUNICATION_RANGE) {
+            // update the traffic light with the approach distance and priority/cost
+            // for this vehicle
+            updateAndBroadcastApproach(me, trafficLight);
         }
 
         if (trafficLight.status() == TrafficLightStatus.GREEN && me.getLength() > 30
@@ -190,5 +202,12 @@ public class TrafficLightApproaching {
             }
         }
         return sumEffectiveLengths;
+    }
+
+    private void updateAndBroadcastApproach(Vehicle veh, TrafficLight trafficLight) {
+        VehicleApproach approach = new VehicleApproach(0, 0.0, 0.0, 0, veh.getSpeed(), distanceToTrafficlight);
+        long vehicleId = veh.getId();
+        trafficLight.addVehicleApproach(vehicleId, approach);
+        lastBroadcastApproach = approach;
     }
 }

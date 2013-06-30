@@ -696,8 +696,12 @@ public class Vehicle {
     }
 
     private void updateTrafficLightApproaching(TrafficLightLocation trafficLightLocation, double distance) {
-        assert distance >= 0 : "distance=" + distance;
-        trafficLightApproaching.update(this, trafficLightLocation.getTrafficLight(), distance);
+        if (distance >= 0) {
+            trafficLightApproaching.update(this, trafficLightLocation.getTrafficLight(), distance);
+        } else {
+            // vehicle has passed traffic light
+            trafficLightLocation.getTrafficLight().removeVehicleApproach(this.id);
+        }
     }
 
 

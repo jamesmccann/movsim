@@ -25,6 +25,7 @@
  */
 package org.movsim.simulator.trafficlights;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -61,12 +62,15 @@ public class TrafficLight {
     private RoadSegment roadSegment;
 
     private Map<Long, VehicleApproach> approachVehicles;
+    
+    private Map<Long, Double> approachVehiclesUpdated;
 
     public TrafficLight(String name, String groupId, TriggerCallback triggerCallback) {
         this.name = name;
         this.groupId = groupId;
         this.triggerCallback = Preconditions.checkNotNull(triggerCallback);
         this.approachVehicles = new HashMap<Long, VehicleApproach>();
+        this.approachVehiclesUpdated = new HashMap<Long, Double>();
     }
 
     /**
@@ -152,10 +156,30 @@ public class TrafficLight {
 
     public void addVehicleApproach(long vehicleId, VehicleApproach approach) {
         approachVehicles.put(vehicleId, approach);
+        approachVehiclesUpdated.put(vehicleId, 0.0);
     }
 
     public void removeVehicleApproach(long vehicleId) {
         approachVehicles.remove(vehicleId);
+    }
+
+    public void updateVehicleApproaches(double dt) {
+        ArrayList<Long> toRemove = new ArrayList<Long>();
+        // update each vehicle approach
+        for (Map.Entry<Long, Double> vehTimestamp : approachVehiclesUpdated.entrySet()) {
+            if (vehTimestamp.getValue() > 4) {
+                toRemove.add(vehTimestamp.getKey());
+            } else {
+                approachVehiclesUpdated.put(vehTimestamp.getKey(), vehTimestamp.getValue() + dt);
+            }
+        }
+
+        // assume these vehicles are no longer communicating with the light
+        // as they have not communicated within the last two "cycles"
+        for (Long vehId : toRemove) {
+            approachVehicles.remove(vehId);
+            approachVehiclesUpdated.remove(vehId);
+        }
     }
 
 }

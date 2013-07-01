@@ -54,11 +54,11 @@ public class VehiclePriority {
         return 0.0;
     }
 
-    public double passengersCost() {
-        return 1.1 * numberOfPassengers;
+    public int getNumberOfPassengers() {
+        return numberOfPassengers;
     }
 
-    public double urgencyCost() {
+    public int getUrgency() {
         return urgency;
     }
 

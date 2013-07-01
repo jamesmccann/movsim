@@ -96,6 +96,7 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
         Phase phase = phases.get(currentPhaseIndex);
         updateGapTimer(phase);
         determinePhase(phase);
+        updateTrafficLightApproaches(dt);
         if (recordDataCallback != null) {
             recordDataCallback.recordData(simulationTime, iterationCount, trafficLights.values());
         }
@@ -277,12 +278,11 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
         }
     }
 
-    public String groupId() {
-        return groupId;
-    }
-
-    String firstSignalId() {
-        return firstSignalId;
+    private void updateTrafficLightApproaches(double dt) {
+        for (TrafficLight trafficLight : trafficLights.values()) {
+            trafficLight.updateVehicleApproaches(dt);
+            
+        }
     }
 
     public interface RecordDataCallback {
@@ -309,6 +309,14 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
 
     public double getGapTime() {
         return currentGapTime;
+    }
+
+    public String groupId() {
+        return groupId;
+    }
+
+    String firstSignalId() {
+        return firstSignalId;
     }
 
 }

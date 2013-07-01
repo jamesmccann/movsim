@@ -56,6 +56,7 @@ import org.movsim.simulator.roadnetwork.TrafficSink;
 import org.movsim.simulator.trafficlights.TrafficLight;
 import org.movsim.simulator.trafficlights.TrafficLightControlGroup;
 import org.movsim.simulator.trafficlights.TrafficLightLocation;
+import org.movsim.simulator.trafficlights.VehicleApproach;
 import org.movsim.simulator.vehicles.Vehicle;
 import org.movsim.utilities.Colors;
 import org.movsim.utilities.Units;
@@ -439,7 +440,9 @@ public class TrafficCanvas extends SimulationCanvasBase implements SimulationRun
             color = labelColors.containsKey(label) ? labelColors.get(label) : Color.WHITE;
             break;
         default:
-            final double v = vehicle.physicalQuantities().getSpeed() * 3.6;
+            double v = vehicle.physicalQuantities().getSpeed() * 3.6;
+            // hackish - stop red/black flickering for stopped vehicles
+            if (v < 0.05) v = 0; 
             color = SwingHelper.getColorAccordingToSpectrum(0, getVmaxForColorSpectrum(), v);
         }
         return color;
@@ -514,25 +517,8 @@ public class TrafficCanvas extends SimulationCanvasBase implements SimulationRun
         g.setPaint(vehicleColor(vehicle, simulationTime));
         g.fill(vehiclePath);
         
-        // draw the vehicle priority
-        final int fontHeight = 12;
-        final Font font = new Font("SansSerif", Font.PLAIN, fontHeight);
-        g.setFont(font);
-        g.setColor(Color.BLACK);
-        
-        g.drawString(Integer.toString(vehicle.getPriority().urgency), 
-                (int) polygon.xPoints[0], 
-                (int) polygon.yPoints[0]);
-        
-       //draw the vehicle instantaneous fuel cost
-        double delayCost = vehicle.getInstantaneousCost();
-        if (vehicle.getSpeed() > 0 && delayCost > 0.025 
-                && vehicle.getDistanceToTrafficlight() > 1 
-                && vehicle.getDistanceToTrafficlight() < 120) {
-            g.drawString(String.format("$%.2f", vehicle.getInstantaneousCost()), 
-               (int) polygon.xPoints[0], 
-               (int) polygon.yPoints[0]+12);
-        }
+        // draw the last broadcast approach attributes for the vehicle
+        drawLastBroadcastApproachData(g, vehicle, polygon);
         
         if (vehicle.isBrakeLightOn()) {
             // if the vehicle is decelerating then display the
@@ -543,6 +529,20 @@ public class TrafficCanvas extends SimulationCanvasBase implements SimulationRun
             vehiclePath.closePath();
             g.setPaint(brakeLightColor);
             g.draw(vehiclePath);
+        }
+    }
+    
+    private void drawLastBroadcastApproachData(Graphics2D g, Vehicle vehicle, RoadMapping.PolygonFloat polygon) {
+        VehicleApproach lastApproach = vehicle.getLastBroadcastApproach(); 
+        if (lastApproach != null) {
+            // draw the vehicle priority
+            final int fontHeight = 12;
+            final Font font = new Font("SansSerif", Font.PLAIN, fontHeight);
+            g.setFont(font);
+            g.setColor(Color.BLACK);
+            g.drawString(Integer.toString(lastApproach.vehicleUrgency), 
+                (int) polygon.xPoints[0], 
+                (int) polygon.yPoints[0]);
         }
     }
 

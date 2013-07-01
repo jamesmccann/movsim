@@ -31,6 +31,7 @@ import org.movsim.simulator.roadnetwork.RoadSegment.TrafficLightLocationWithDist
 import org.movsim.simulator.trafficlights.TrafficLight;
 import org.movsim.simulator.trafficlights.VehicleApproach;
 import org.movsim.simulator.vehicles.Vehicle;
+import org.movsim.simulator.vehicles.VehiclePriority;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,6 +67,7 @@ public class TrafficLightApproaching {
     public TrafficLightApproaching() {
         considerTrafficLight = false;
         distanceToTrafficlight = MovsimConstants.INVALID_GAP;
+        lastBroadcastApproach = null;
     }
 
     /**
@@ -212,9 +214,15 @@ public class TrafficLightApproaching {
     }
 
     private void updateAndBroadcastApproach(Vehicle veh, TrafficLight trafficLight) {
-        VehicleApproach approach = new VehicleApproach(0, 0.0, 0.0, 0, veh.getSpeed(), distanceToTrafficlight);
+        VehiclePriority p = veh.getPriority();
+        VehicleApproach approach = new VehicleApproach(p.getUrgency(), veh.getInstantaneousCost(), 0, 0,
+                veh.getSpeed(), distanceToTrafficlight);
         long vehicleId = veh.getId();
         trafficLight.addVehicleApproach(vehicleId, approach);
         lastBroadcastApproach = approach;
+    }
+
+    public VehicleApproach getVehicleApproach() {
+        return lastBroadcastApproach;
     }
 }

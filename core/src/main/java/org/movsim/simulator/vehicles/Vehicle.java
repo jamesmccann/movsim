@@ -38,6 +38,7 @@ import org.movsim.simulator.roadnetwork.RoadSegment;
 import org.movsim.simulator.roadnetwork.RoadSegment.TrafficLightLocationWithDistance;
 import org.movsim.simulator.roadnetwork.routing.Route;
 import org.movsim.simulator.trafficlights.TrafficLightLocation;
+import org.movsim.simulator.trafficlights.VehicleApproach;
 import org.movsim.simulator.vehicles.lanechange.LaneChangeModel;
 import org.movsim.simulator.vehicles.lanechange.LaneChangeModel.LaneChangeDecision;
 import org.movsim.simulator.vehicles.longitudinalmodel.Memory;
@@ -698,9 +699,6 @@ public class Vehicle {
     private void updateTrafficLightApproaching(double dt, TrafficLightLocation trafficLightLocation, double distance) {
         if (distance >= 0) {
             trafficLightApproaching.update(dt, this, trafficLightLocation.getTrafficLight(), distance);
-        } else {
-            // vehicle has passed traffic light
-            trafficLightLocation.getTrafficLight().removeVehicleApproach(this.id);
         }
     }
 
@@ -1262,6 +1260,14 @@ public class Vehicle {
 
     public VehicleClass getVehicleClass() {
         return vehicleClass;
+    }
+
+    public VehicleApproach getLastBroadcastApproach() {
+        if (trafficLightApproaching != null) {
+            return trafficLightApproaching.getVehicleApproach();
+        } else {
+            return null;
+        }
     }
 
 }

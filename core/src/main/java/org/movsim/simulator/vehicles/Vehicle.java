@@ -692,6 +692,8 @@ public class Vehicle {
             if (trafficLightApproaching.considerTrafficLight()) {
                 moderatedAcc = Math.min(acc, trafficLightApproaching.accApproaching());
             }
+        } else {
+            trafficLightApproaching.clearLastBroadcastApproach();
         }
         return moderatedAcc;
     }
@@ -699,6 +701,8 @@ public class Vehicle {
     private void updateTrafficLightApproaching(double dt, TrafficLightLocation trafficLightLocation, double distance) {
         if (distance >= 0) {
             trafficLightApproaching.update(dt, this, trafficLightLocation.getTrafficLight(), distance);
+        } else {
+            trafficLightApproaching.clearLastBroadcastApproach();
         }
     }
 
@@ -1265,9 +1269,8 @@ public class Vehicle {
     public VehicleApproach getLastBroadcastApproach() {
         if (trafficLightApproaching != null) {
             return trafficLightApproaching.getVehicleApproach();
-        } else {
-            return null;
         }
+        return null;
     }
 
 }

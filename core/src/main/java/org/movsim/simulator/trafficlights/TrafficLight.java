@@ -165,9 +165,10 @@ public class TrafficLight {
 
     public void updateVehicleApproaches(double dt) {
         ArrayList<Long> toRemove = new ArrayList<Long>();
-        // update each vehicle approach
+        // update each vehicle approach, assume perfect communication so anything over
+        // a single cycle time of 2.0 seconds has stopped communicating
         for (Map.Entry<Long, Double> vehTimestamp : approachVehiclesUpdated.entrySet()) {
-            if (vehTimestamp.getValue() > 4) {
+            if (vehTimestamp.getValue() > 2.2) {
                 toRemove.add(vehTimestamp.getKey());
             } else {
                 approachVehiclesUpdated.put(vehTimestamp.getKey(), vehTimestamp.getValue() + dt);

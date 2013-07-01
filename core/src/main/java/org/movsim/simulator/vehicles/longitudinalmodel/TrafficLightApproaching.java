@@ -56,6 +56,8 @@ public class TrafficLightApproaching {
 
     private VehicleApproach lastBroadcastApproach;
 
+    private TrafficLight lastTrafficLight;
+
     /**
      * Seconds since last broadcast
      */
@@ -82,6 +84,7 @@ public class TrafficLightApproaching {
         lastBroadcastTime += dt;
         accTrafficLight = 0;
         considerTrafficLight = false;
+        lastTrafficLight = trafficLight;
         this.distanceToTrafficlight = distanceToTrafficlight;
 
         if (distanceToTrafficlight > MAX_LOOK_AHEAD_DISTANCE) {
@@ -91,7 +94,7 @@ public class TrafficLightApproaching {
         }
 
         // TODO: refactor this into its own class?
-        if (lastBroadcastTime > 2.0 && distanceToTrafficlight <= MAX_COMMUNICATION_RANGE) {
+        if (lastBroadcastTime >= 2.0 && distanceToTrafficlight <= MAX_COMMUNICATION_RANGE) {
             // update the traffic light with the approach distance and priority/cost
             // for this vehicle
             updateAndBroadcastApproach(me, trafficLight);
@@ -222,7 +225,19 @@ public class TrafficLightApproaching {
         lastBroadcastApproach = approach;
     }
 
+    public void clearLastBroadcastApproach() {
+        lastBroadcastApproach = null;
+    }
+
     public VehicleApproach getVehicleApproach() {
         return lastBroadcastApproach;
+    }
+
+    public TrafficLight getLastTrafficLight() {
+        return lastTrafficLight;
+    }
+
+    public double getLastBroadcastTime() {
+        return lastBroadcastTime;
     }
 }

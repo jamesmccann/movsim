@@ -218,8 +218,8 @@ public class TrafficLightApproaching {
 
     private void updateAndBroadcastApproach(Vehicle veh, TrafficLight trafficLight) {
         VehiclePriority p = veh.getPriority();
-        VehicleApproach approach = new VehicleApproach(p.getUrgency(), veh.getInstantaneousCost(), 0, 0,
-                veh.getSpeed(), distanceToTrafficlight);
+        VehicleApproach approach = new VehicleApproach(p.getUrgency(), veh.getInstantaneousCost(), 0,
+                p.getNumberOfPassengers(), veh.getSpeed(), distanceToTrafficlight);
         long vehicleId = veh.getId();
         trafficLight.addVehicleApproach(vehicleId, approach);
         lastBroadcastApproach = approach;

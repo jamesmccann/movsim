@@ -36,6 +36,7 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -535,14 +536,20 @@ public class TrafficCanvas extends SimulationCanvasBase implements SimulationRun
     private void drawLastBroadcastApproachData(Graphics2D g, Vehicle vehicle, RoadMapping.PolygonFloat polygon) {
         VehicleApproach lastApproach = vehicle.getLastBroadcastApproach(); 
         if (lastApproach != null) {
-            // draw the vehicle priority
             final int fontHeight = 12;
             final Font font = new Font("SansSerif", Font.PLAIN, fontHeight);
             g.setFont(font);
             g.setColor(Color.BLACK);
+            
+            // draw the vehicle priority
             g.drawString(Integer.toString(lastApproach.vehicleUrgency), 
                 (int) polygon.xPoints[0], 
                 (int) polygon.yPoints[0]);
+            
+            // draw the vehicle cost of stopping
+            g.drawString(String.format("$%.2f", lastApproach.costOfStopping),
+                (int) polygon.xPoints[0], 
+                (int) polygon.yPoints[0] + 12);
         }
     }
 
@@ -639,8 +646,10 @@ public class TrafficCanvas extends SimulationCanvasBase implements SimulationRun
     }
 
     private void drawTrafficLights(Graphics2D g) {
+        int offset = 0;
         for (final RoadSegment roadSegment : roadNetwork) {
-            drawTrafficLightsOnRoad(g, roadSegment);
+            drawTrafficLightsOnRoad(g, roadSegment, offset);
+            offset -= 15;
         }
     }
 
@@ -749,7 +758,7 @@ public class TrafficCanvas extends SimulationCanvasBase implements SimulationRun
         g.fillOval((int) (x - radius), (int) (y - radius), (int) (2 * radius), (int) (2 * radius));
     }
 
-    private static void drawTrafficLightsOnRoad(Graphics2D g, RoadSegment roadSegment) {
+    private static void drawTrafficLightsOnRoad(Graphics2D g, RoadSegment roadSegment, int offset) {
         if (roadSegment.trafficLightLocations() == null) {
             return;
         }
@@ -759,6 +768,7 @@ public class TrafficCanvas extends SimulationCanvasBase implements SimulationRun
         // final double offset = -(roadMapping.laneCount() / 2.0 + 1.5) * roadMapping.laneWidth();
         // final int size = (int) (2 * roadMapping.laneWidth());
         final double radius = 0.8 * roadMapping.laneWidth();
+
         for (TrafficLightLocation trafficLightLocation : roadSegment.trafficLightLocations()) {
             Rectangle2D trafficLightRect = trafficLightRect(roadMapping, trafficLightLocation);
             switch (trafficLightLocation.getTrafficLight().lightCount()) {
@@ -772,6 +782,25 @@ public class TrafficCanvas extends SimulationCanvasBase implements SimulationRun
                 drawTrafficLight3(g, trafficLightLocation.getTrafficLight(), trafficLightRect, radius);
                 break;
             }
+           
+            double totalStoppingCost = 0.0;
+            double totalUrgency = 0;
+            Collection<VehicleApproach> approaches = trafficLightLocation.getTrafficLight().getVehicleApproaches();
+            for (VehicleApproach approach : approaches) {
+                totalStoppingCost += approach.costOfStopping;
+                totalUrgency += approach.vehicleUrgency;
+            }
+            int totalVehicles = approaches.size();
+            g.setColor(Color.BLACK);
+            g.drawString("Total Vehicles: " + totalVehicles, 
+                    (int) trafficLightRect.getMaxX() + 5, 
+                    (int) trafficLightRect.getMaxY() + 10 + offset);
+            g.drawString("Total Urgency: " + totalUrgency, 
+                    (int) trafficLightRect.getMaxX() + 5, 
+                    (int) trafficLightRect.getMaxY() + 25 + offset);
+            g.drawString("Total Stopping Cost: $" + String.format("%.2f", totalStoppingCost), 
+                    (int) trafficLightRect.getMaxX() + 5, 
+                    (int) trafficLightRect.getMaxY() + 40 + offset);
         }
     }
     

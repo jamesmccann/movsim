@@ -26,6 +26,7 @@
 package org.movsim.simulator.trafficlights;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -181,6 +182,10 @@ public class TrafficLight {
             approachVehicles.remove(vehId);
             approachVehiclesUpdated.remove(vehId);
         }
+    }
+
+    public Collection<VehicleApproach> getVehicleApproaches() {
+        return approachVehicles.values();
     }
 
 }

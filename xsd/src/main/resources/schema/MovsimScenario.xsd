@@ -642,7 +642,7 @@
         <xs:complexType>
             <xs:sequence>
             	<xs:element ref="TrafficControlStrategy" minOccurs="1" maxOccurs="unbounded" />
-            	<xs:element ref="Phase" minOccurs="1" maxOccurs="1" />
+            	<xs:element ref="Phase" minOccurs="1" maxOccurs="unbounded" />
             </xs:sequence>
             <!-- serves as reference to controller-id in xodr -->
             <xs:attribute name="id" type="xs:string" use="required" />

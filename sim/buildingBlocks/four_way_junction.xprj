@@ -53,7 +53,8 @@
             </Road>
         </Simulation>
         <TrafficLights logging="true" n_timestep="5">
-            <ControllerGroup id="plan1" range="10" gap="12">
+            <ControllerGroup id="plan1">
+                <TrafficControlStrategy type="VehicleActuated" range="10" gap="12" />
                 <Phase duration="60" min="15" max="60" intergreen="8" all_red="2">
                     <TrafficLightState name="first" status="Red" />
                     <TrafficLightState name="second" status="Green" condition="request" />

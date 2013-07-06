@@ -641,7 +641,8 @@
     <xs:element name="ControllerGroup">
         <xs:complexType>
             <xs:sequence>
-                <xs:element ref="Phase" minOccurs="1" maxOccurs="unbounded" />
+            	<xs:element ref="TrafficControlStrategy" minOccurs="1" maxOccurs="unbounded" />
+            	<xs:element ref="Phase" minOccurs="1" maxOccurs="1" />
             </xs:sequence>
             <!-- serves as reference to controller-id in xodr -->
             <xs:attribute name="id" type="xs:string" use="required" />
@@ -649,6 +650,12 @@
             <xs:attribute name="range" type="positiveDouble" default="100" />
             <xs:attribute name="gap" type="positiveDouble" default="12" />
         </xs:complexType>
+    </xs:element>
+    <xs:element name="TrafficControlStrategy">
+    	<xs:complexType>
+			<xs:attribute name="type" type="xs:string" use="required" /> 
+			<xs:attribute name="gap" type="xs:string" use="optional" />    	
+    	</xs:complexType>
     </xs:element>
     <xs:element name="Phase">
         <xs:complexType>

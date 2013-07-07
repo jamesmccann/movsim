@@ -47,7 +47,7 @@
             <Road id="3">
                 <InitialConditions />
                 <TrafficSource logging="false">
-                    <Inflow t="0" q_per_hour="10" />
+                    <Inflow t="0" q_per_hour="300" />
                 </TrafficSource>
                 <Detectors />
             </Road>

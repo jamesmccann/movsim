@@ -6,6 +6,7 @@ import java.util.Map;
 import org.movsim.autogen.Phase;
 import org.movsim.autogen.TrafficControlStrategy;
 import org.movsim.autogen.TrafficLightState;
+import org.movsim.autogen.TrafficLightStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,13 +80,18 @@ public class PriorityActuatedControlStrategy implements ControlStrategy {
         // for each phase
         // - add up all approach priorities
         // - find the phase which satisfies the approaches with the highest cost
+        // - initial assumption is the highest priorty phase is the current one
         double highestApproachCost = Double.MIN_VALUE;
-        int highestPhaseIndex = -1;
-        for (int i = 0; i < phases.size() - 1; i++) {
+        int highestPhaseIndex = currentPhaseIndex;
+        for (int i = 0; i < phases.size(); i++) {
             Phase phase = phases.get(i);
             double currentPhaseCost = 0.0;
             for (TrafficLightState state : phase.getTrafficLightState()) {
-                currentPhaseCost += trafficLights.get(state.getName()).getApproachCost();
+                // look for approaches that will be made green by this phase
+                // (but are currently red)
+                if (state.getStatus() == TrafficLightStatus.GREEN) {
+                    currentPhaseCost += trafficLights.get(state.getName()).getApproachCost();
+                }
             }
             LOG.info("phase: " + i + ", currentUrgency: " + currentPhaseCost);
             if (currentPhaseCost > highestApproachCost) {
@@ -110,12 +116,13 @@ public class PriorityActuatedControlStrategy implements ControlStrategy {
     }
 
     private void setNextPhaseIndex() {
+        if (nextPhaseIndex != -1) { return; }
         // set next to the current highest priority phase
         int targetPhaseIndex = highestPriorityPhase();
+        System.out.println("current phase index: " + currentPhaseIndex);
+        System.out.println("priority strategy setting next phase to " + targetPhaseIndex);
 
         if (targetPhaseIndex != currentPhaseIndex) {
-            System.out.println("current phase index: " + currentPhaseIndex);
-            System.out.println("priority strategy setting next phase to " + targetPhaseIndex);
             nextPhaseIndex = targetPhaseIndex;
         }
     }

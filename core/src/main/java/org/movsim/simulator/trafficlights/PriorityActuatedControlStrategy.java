@@ -87,12 +87,13 @@ public class PriorityActuatedControlStrategy implements ControlStrategy {
             for (TrafficLightState state : phase.getTrafficLightState()) {
                 currentPhaseCost += trafficLights.get(state.getName()).getApproachCost();
             }
+            LOG.info("phase: " + i + ", currentUrgency: " + currentPhaseCost);
             if (currentPhaseCost > highestApproachCost) {
                 highestApproachCost = currentPhaseCost;
                 highestPhaseIndex = i;
             }
         }
-        LOG.debug("current highest priority phase " + highestPhaseIndex);
+        LOG.info("current highest priority phase " + highestPhaseIndex);
         return highestPhaseIndex;
     }
 

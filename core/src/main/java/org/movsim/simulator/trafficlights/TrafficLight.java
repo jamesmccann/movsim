@@ -191,7 +191,7 @@ public class TrafficLight {
     public double getApproachCost() {
         double result = 0.0;
         for (VehicleApproach approach : approachVehicles.values()) {
-            result += approach.costOfStopping;
+            result += approach.vehicleUrgency;
         }
         return result;
     }

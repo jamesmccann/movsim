@@ -56,9 +56,9 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
 
         // TODO this could be improved
         TrafficControlStrategy strategy = controllerGroup.getTrafficControlStrategy();
-        if (strategy.getType() == "VehicleActuated") {
+        if (strategy.getType().equals("VehicleActuated")) {
             controlStrategy = new VehicleActuatedControlStrategy(strategy, phases, trafficLights);
-        } else if (strategy.getType() == "PriorityActuated") {
+        } else if (strategy.getType().equals("PriorityActuated")) {
             controlStrategy = new PriorityActuatedControlStrategy(strategy, phases, trafficLights);
         } else {
             // default is VehicleActuated
@@ -214,6 +214,11 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
 
     String firstSignalId() {
         return firstSignalId;
+    }
+
+    @Override
+    public double getGapTime() {
+        return 0;
     }
 
 }

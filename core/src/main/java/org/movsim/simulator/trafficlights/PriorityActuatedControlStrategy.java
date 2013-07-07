@@ -84,13 +84,16 @@ public class PriorityActuatedControlStrategy implements ControlStrategy {
         double highestApproachCost = Double.MIN_VALUE;
         int highestPhaseIndex = currentPhaseIndex;
         for (int i = 0; i < phases.size(); i++) {
+            if (i == currentPhaseIndex) {
+                continue;
+            }
             Phase phase = phases.get(i);
             double currentPhaseCost = 0.0;
             for (TrafficLightState state : phase.getTrafficLightState()) {
                 // look for approaches that will be made green by this phase
                 // (but are currently red)
                 if (state.getStatus() == TrafficLightStatus.GREEN) {
-                    currentPhaseCost += trafficLights.get(state.getName()).getApproachCost();
+                    currentPhaseCost += trafficLights.get(state.getName()).getDelayCost();
                 }
             }
             LOG.info("phase: " + i + ", currentUrgency: " + currentPhaseCost);
@@ -99,8 +102,24 @@ public class PriorityActuatedControlStrategy implements ControlStrategy {
                 highestPhaseIndex = i;
             }
         }
-        LOG.info("current highest priority phase " + highestPhaseIndex);
-        return highestPhaseIndex;
+
+        // compare delay cost to cost of stopping current phase
+        // whichever is greater wins
+        Phase currentPhase = phases.get(currentPhaseIndex);
+        double currentApproachStoppingCost = 0.0;
+        for (TrafficLightState state : currentPhase.getTrafficLightState()) {
+            // look for approaches that will be made green by this phase
+            // (but are currently red)
+            if (state.getStatus() == TrafficLightStatus.GREEN) {
+                currentApproachStoppingCost += trafficLights.get(state.getName()).getApproachCost();
+            }
+        }
+        if (currentApproachStoppingCost < highestApproachCost) {
+            LOG.info("hp phase stopping cost highest: " + highestPhaseIndex + ", " + highestApproachCost + " > "
+                    + currentApproachStoppingCost);
+            return highestPhaseIndex;
+        }
+        return currentPhaseIndex;
     }
 
     public boolean phaseDurationConditionFulfilled(Phase phase) {

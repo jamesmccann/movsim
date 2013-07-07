@@ -191,7 +191,15 @@ public class TrafficLight {
     public double getApproachCost() {
         double result = 0.0;
         for (VehicleApproach approach : approachVehicles.values()) {
-            result += approach.vehicleUrgency;
+            result += approach.costOfStopping;
+        }
+        return result;
+    }
+
+    public double getDelayCost() {
+        double result = 0.0;
+        for (VehicleApproach approach : approachVehicles.values()) {
+            result += approach.getDelayCost();
         }
         return result;
     }

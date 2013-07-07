@@ -7,7 +7,7 @@ public class VehicleApproach {
 
     public final double costOfStopping;
 
-    public final double costOfDelay;
+    public final double delayTime;
 
     public final int numberOfPassengers;
 
@@ -15,14 +15,23 @@ public class VehicleApproach {
 
     public final double distanceToTrafficLight;
 
-    public VehicleApproach(int urgency, double costOfStopping, double costOfDelay, int NoOfPassengers, double speed,
+    public VehicleApproach(int urgency, double costOfStopping, double delayTime, int NoOfPassengers, double speed,
             double distance) {
         this.vehicleUrgency = urgency;
         this.costOfStopping = costOfStopping;
-        this.costOfDelay = costOfDelay;
+        this.delayTime = delayTime;
         this.numberOfPassengers = NoOfPassengers;
         this.vehicleSpeed = speed;
         this.distanceToTrafficLight = distance;
+    }
+
+    public double getStoppingCost() {
+        return 0.0;
+    }
+
+    public double getDelayCost() {
+        // $26/hr
+        return 0.007 * delayTime;
     }
 
 }

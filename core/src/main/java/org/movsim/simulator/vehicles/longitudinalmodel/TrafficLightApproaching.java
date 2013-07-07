@@ -58,6 +58,8 @@ public class TrafficLightApproaching {
 
     private TrafficLight lastTrafficLight;
 
+    private double controlledDelayTime;
+
     /**
      * Seconds since last broadcast
      */
@@ -99,6 +101,11 @@ public class TrafficLightApproaching {
             // for this vehicle
             updateAndBroadcastApproach(me, trafficLight);
             lastBroadcastTime = 0;
+        }
+
+        // keep track of time delayed by this trafficLight
+        if (me.getSpeed() <= 0.005) {
+            controlledDelayTime += dt;
         }
 
         if (trafficLight.status() == TrafficLightStatus.GREEN && me.getLength() > 30
@@ -218,7 +225,7 @@ public class TrafficLightApproaching {
 
     private void updateAndBroadcastApproach(Vehicle veh, TrafficLight trafficLight) {
         VehiclePriority p = veh.getPriority();
-        VehicleApproach approach = new VehicleApproach(p.getUrgency(), veh.getInstantaneousCost(), 0,
+        VehicleApproach approach = new VehicleApproach(p.getUrgency(), veh.getInstantaneousCost(), controlledDelayTime,
                 p.getNumberOfPassengers(), veh.getSpeed(), distanceToTrafficlight);
         long vehicleId = veh.getId();
         trafficLight.addVehicleApproach(vehicleId, approach);

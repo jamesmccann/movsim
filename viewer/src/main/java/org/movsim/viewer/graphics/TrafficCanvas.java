@@ -649,7 +649,7 @@ public class TrafficCanvas extends SimulationCanvasBase implements SimulationRun
         int offset = 0;
         for (final RoadSegment roadSegment : roadNetwork) {
             drawTrafficLightsOnRoad(g, roadSegment, offset);
-            offset -= 15;
+            offset -= 25;
         }
     }
 
@@ -785,10 +785,12 @@ public class TrafficCanvas extends SimulationCanvasBase implements SimulationRun
            
             double totalStoppingCost = 0.0;
             double totalUrgency = 0;
+            double totalDelayCost = 0;
             Collection<VehicleApproach> approaches = trafficLightLocation.getTrafficLight().getVehicleApproaches();
             for (VehicleApproach approach : approaches) {
                 totalStoppingCost += approach.costOfStopping;
                 totalUrgency += approach.vehicleUrgency;
+                totalDelayCost += approach.getDelayCost();
             }
             int totalVehicles = approaches.size();
             g.setColor(Color.BLACK);
@@ -801,6 +803,9 @@ public class TrafficCanvas extends SimulationCanvasBase implements SimulationRun
             g.drawString("Total Stopping Cost: $" + String.format("%.2f", totalStoppingCost), 
                     (int) trafficLightRect.getMaxX() + 5, 
                     (int) trafficLightRect.getMaxY() + 40 + offset);
+            g.drawString("Total Delay Cost: $" + String.format("%.2f", totalDelayCost), 
+                    (int) trafficLightRect.getMaxX() + 5, 
+                    (int) trafficLightRect.getMaxY() + 55 + offset);
         }
     }
     

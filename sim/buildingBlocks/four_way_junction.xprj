@@ -36,7 +36,9 @@
             </TrafficComposition>
             <Road id="1">
                 <TrafficComposition>
-                    <VehicleType label="IDM2" fraction="1" relative_v0_randomization="0.5" />
+                    <VehicleType label="IDM1" fraction="0.4" relative_v0_randomization="0.2" />
+                    <VehicleType label="ACC1" fraction="0.4" relative_v0_randomization="0.2" />
+                    <VehicleType label="IDM2" fraction="0.2" relative_v0_randomization="0.2" />
                 </TrafficComposition>
                 <InitialConditions />
                 <TrafficSource logging="false">
@@ -54,7 +56,7 @@
         </Simulation>
         <TrafficLights logging="true" n_timestep="5">
             <ControllerGroup id="plan1">
-                <TrafficControlStrategy type="PriorityActuated" />
+                <TrafficControlStrategy type="PriorityLookahead" />
                 <Phase duration="60" min="15" max="60" intergreen="8" all_red="2">
                     <TrafficLightState name="first" status="Red" />
                     <TrafficLightState name="second" status="Green" condition="request" />

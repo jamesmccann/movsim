@@ -103,7 +103,7 @@ public class TrafficLightApproaching {
             lastBroadcastTime = 0;
         }
 
-        // keep track of time delayed by this trafficLight
+        // keep track of time delayed (when stopped) by this trafficLight
         if (me.getSpeed() <= 0.005) {
             controlledDelayTime += dt;
         }
@@ -225,8 +225,9 @@ public class TrafficLightApproaching {
 
     private void updateAndBroadcastApproach(Vehicle veh, TrafficLight trafficLight) {
         VehiclePriority p = veh.getPriority();
-        VehicleApproach approach = new VehicleApproach(p.getUrgency(), veh.getInstantaneousCost(), controlledDelayTime,
-                p.getNumberOfPassengers(), veh.getSpeed(), distanceToTrafficlight);
+        VehicleApproach approach = new VehicleApproach(veh.getWeight(), veh.getAcc(), veh.getSpeed(), p.getUrgency(),
+                veh.getInstantaneousCost(), controlledDelayTime, p.getNumberOfPassengers(), distanceToTrafficlight,
+                veh.getVehicleClass());
         long vehicleId = veh.getId();
         trafficLight.addVehicleApproach(vehicleId, approach);
         lastBroadcastApproach = approach;

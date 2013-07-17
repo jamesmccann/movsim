@@ -16,15 +16,14 @@ public class VehicleConsumption {
     }
 
     public static double instantaneousStopFuelCost(Vehicle v) {
-        double mass, approachVelocity, kEnergy, litres;
         VehicleClass vc = v.getVehicleClass();
+        return instantaneousStopFuelCost(vc.getWeight(), v.getSpeed(), vc);
+    }
 
-        approachVelocity = v.getSpeed();
-        mass = vc.getWeight();
-
+    public static double instantaneousStopFuelCost(double mass, double approachVelocity, VehicleClass vc) {
+        double kEnergy, litres;
         kEnergy = 0.5 * (mass * Math.pow(approachVelocity, 2));
         litres = kEnergy / (vc.getEngineEfficiencyFactor() * (vc.getFuelEnergyDensity()));
-
         return litres * vc.getFuelPricePerL();
     }
 

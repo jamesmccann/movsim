@@ -11,12 +11,14 @@ import com.google.common.base.Preconditions;
 
 public class EnergyFlowModelFactory {
     
-    private final Map<String, EnergyFlowModel> energyFlowModels = new HashMap<>();
+    private final Map<String, EnergyFlowModel> energyFlowModels; 
     
     public EnergyFlowModelFactory() {
+        energyFlowModels = new HashMap<String, EnergyFlowModel>();
     }
 
     public EnergyFlowModelFactory(ConsumptionModels models) {
+        energyFlowModels = new HashMap<String, EnergyFlowModel>();
         initialize(models);
     }
 

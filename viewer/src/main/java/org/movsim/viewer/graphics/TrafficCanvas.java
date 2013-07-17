@@ -62,6 +62,7 @@ import org.movsim.simulator.vehicles.Vehicle;
 import org.movsim.utilities.Colors;
 import org.movsim.utilities.Units;
 import org.movsim.viewer.roadmapping.PaintRoadMapping;
+import org.movsim.viewer.ui.TrafficControllerStatusPanel;
 import org.movsim.viewer.ui.ViewProperties;
 import org.movsim.viewer.util.SwingHelper;
 import org.slf4j.Logger;
@@ -173,6 +174,8 @@ public class TrafficCanvas extends SimulationCanvasBase implements SimulationRun
     protected VehicleTipWindow vehicleTipWindow;
     final TrafficCanvasMouseListener mouseListener;
     final TrafficCanvasKeyListener controller;
+    
+    protected TrafficControllerStatusPanel trafficControllerStatusPanel;
 
     protected long lastVehicleViewed = -1;
     protected long vehicleToHighlightId = -1;
@@ -197,6 +200,12 @@ public class TrafficCanvas extends SimulationCanvasBase implements SimulationRun
         addMouseListener(mouseListener);
         addMouseMotionListener(mouseListener);
         addMouseWheelListener(mouseListener);
+    }
+
+    public TrafficCanvas(Simulator simulator, Properties properties,
+            TrafficControllerStatusPanel trafficControllerPanel) {
+        this(simulator, properties);
+        trafficControllerStatusPanel = trafficControllerPanel;
     }
 
     /**
@@ -793,6 +802,8 @@ public class TrafficCanvas extends SimulationCanvasBase implements SimulationRun
                 totalDelayCost += approach.getDelayCost();
             }
             int totalVehicles = approaches.size();
+            
+            
             g.setColor(Color.BLACK);
             g.drawString("Total Vehicles: " + totalVehicles, 
                     (int) trafficLightRect.getMaxX() + 5, 

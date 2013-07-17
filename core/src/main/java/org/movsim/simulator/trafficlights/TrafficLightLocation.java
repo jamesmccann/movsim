@@ -79,7 +79,7 @@ public class TrafficLightLocation {
                 + position + ", trafficLight=" + trafficLight + "]";
     }
 
-    Controller getController() {
+    public Controller getController() {
         return controller;
     }
 

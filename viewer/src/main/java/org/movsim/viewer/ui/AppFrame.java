@@ -52,6 +52,7 @@ public class AppFrame extends JFrame {
     private final CanvasPanel canvasPanel;
     final StatusPanel statusPanel;
     private MovSimToolBar toolBar;
+    private TrafficControllerStatusPanel trafficControllerPanel;
 
     public AppFrame(ResourceBundle resourceBundle, ProjectMetaData projectMetaData, Properties properties) {
         super(resourceBundle.getString("FrameName"));
@@ -61,14 +62,17 @@ public class AppFrame extends JFrame {
         final Simulator simulator = new Simulator();
         initLookAndFeel();
 
-        final TrafficCanvas trafficCanvas = new TrafficCanvas(simulator, properties);
+        trafficControllerPanel = new TrafficControllerStatusPanel(simulator);
+        final TrafficCanvas trafficCanvas = new TrafficCanvas(simulator, properties, trafficControllerPanel);
         canvasPanel = new CanvasPanel(resourceBundle, trafficCanvas);
         statusPanel = new StatusPanel(resourceBundle, simulator);
         toolBar = new MovSimToolBar(statusPanel, trafficCanvas, resourceBundle);
+        
 
         addMenu(resourceBundle, simulator, trafficCanvas, properties);
         add(canvasPanel, BorderLayout.CENTER);
         add(toolBar, BorderLayout.NORTH);
+        add(trafficControllerPanel, BorderLayout.EAST);
 
         addComponentListener(new ComponentAdapter() {
             @Override
@@ -105,6 +109,9 @@ public class AppFrame extends JFrame {
     }
 
     private void initFrameSize(Properties properties) {
+        // setSize(450, 550); 
+        // return;
+        
         int xPixSize = Integer.parseInt(properties.getProperty("xPixSizeWindow"));
         int yPixSize = Integer.parseInt(properties.getProperty("yPixSizeWindow"));
         if (xPixSize < 0 || yPixSize < 0) {

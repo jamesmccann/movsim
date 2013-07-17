@@ -32,6 +32,8 @@ public interface ControlStrategy {
      * Call to reset timers, notifying strategy that the controller has
      * successfully completed the requested phase change
      */
-    public void acknowledgeNextPhaseSet();
+    public void acknowledgeNextPhaseSet(int index);
+
+    public String getName();
 
 }

@@ -41,6 +41,7 @@ import org.movsim.simulator.roadnetwork.RoadNetwork;
 import org.movsim.simulator.roadnetwork.RoadSegment;
 import org.movsim.simulator.roadnetwork.VariableMessageSignBase;
 import org.movsim.simulator.roadnetwork.VariableMessageSignDiversion;
+import org.movsim.simulator.trafficlights.TrafficLightControlGroup;
 import org.movsim.simulator.trafficlights.TrafficLightLocation;
 import org.movsim.simulator.vehicles.Vehicle;
 import org.movsim.viewer.graphics.TrafficCanvas.VehicleColorMode;
@@ -121,6 +122,14 @@ public class TrafficCanvasMouseListener implements MouseListener, MouseMotionLis
                     if (trafficLightRect.contains(transformedPoint)) {
                         trafficLightLocation.getTrafficLight().triggerNextPhase();
                         trafficCanvas.repaint();
+                        
+                        // find the controller for this traffic light
+                        String controlId = trafficLightLocation.controllerId();
+                        for (TrafficLightControlGroup controller : trafficCanvas.simulator.getTrafficLights().getTrafficLightControlGroups()) {
+                            if (controller.groupId().equals(controlId)) { 
+                                trafficCanvas.trafficControllerStatusPanel.setController(controller);
+                            }
+                        }
                     }
                 }
             }

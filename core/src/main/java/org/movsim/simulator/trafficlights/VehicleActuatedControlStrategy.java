@@ -174,12 +174,16 @@ public class VehicleActuatedControlStrategy implements ControlStrategy {
     }
 
     @Override
-    public void acknowledgeNextPhaseSet() {
-        currentPhaseIndex = nextPhaseIndex;
+    public void acknowledgeNextPhaseSet(int index) {
+        currentPhaseIndex = index;
         nextPhaseIndex = -1;
         currentPhaseDuration = 0;
         currentGapDuration = 0;
         currentMaximumDuration = 0;
+    }
+
+    public String getName() {
+        return "Vehicle Actuated";
     }
 
 }

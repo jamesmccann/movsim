@@ -23,7 +23,7 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
 
     private final List<Phase> phases;
 
-    private final ControlStrategy controlStrategy;
+    public final ControlStrategy controlStrategy;
 
     private final String groupId;
 
@@ -60,6 +60,8 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
             controlStrategy = new VehicleActuatedControlStrategy(strategy, phases, trafficLights);
         } else if (strategy.getType().equals("PriorityActuated")) {
             controlStrategy = new PriorityActuatedControlStrategy(strategy, phases, trafficLights);
+        } else if (strategy.getType().equals("PriorityLookahead")) {
+            controlStrategy = new PriorityLookaheadControlStrategy(strategy, phases, trafficLights);
         } else {
             // default is VehicleActuated
             controlStrategy = new VehicleActuatedControlStrategy(strategy, phases, trafficLights);
@@ -135,14 +137,23 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
 
     @Override
     public void nextPhase() {
-        currentPhaseIndex = nextPhaseIndex;
-        nextPhaseIndex = -1;
+        // if next phase index is not set, just increment a phase
+        if (nextPhaseIndex != -1) {
+            currentPhaseIndex = nextPhaseIndex;
+            nextPhaseIndex = -1;
+        } else {
+            currentPhaseIndex += 1;
+            if (currentPhaseIndex == phases.size()) {
+                currentPhaseIndex = 0;
+            }
+        }
+
         intergreen = false;
         allRed = false;
         currentPhaseDuration = 0;
         currentIntergreenDuration = 0;
         currentAllRedDuration = 0;
-        controlStrategy.acknowledgeNextPhaseSet();
+        controlStrategy.acknowledgeNextPhaseSet(currentPhaseIndex);
         updateTrafficLights(phases.get(currentPhaseIndex));
     }
     
@@ -218,7 +229,15 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
 
     @Override
     public double getGapTime() {
-        return 0;
+        return 0.0;
+    }
+    
+    public int getNextPhase() {
+        return controlStrategy.getNextPhaseIndex();
+    }
+
+    public int getCurrentPhase() {
+        return currentPhaseIndex;
     }
 
 }

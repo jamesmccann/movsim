@@ -74,4 +74,11 @@ public class VehicleApproach {
         return delayCost(estimatedDelay);
     }
 
+    public double estimatedTotalCost(double timeStep, double estimatedDelay) {
+        // given that we will stop the traffic light in K seconds
+        // and the current vehicle will be delayed approximately X seconds
+        // what is the total cost incurred
+        return estimatedStoppingCost(timeStep) + estimatedDelayCost(estimatedDelay);
+    }
+
 }

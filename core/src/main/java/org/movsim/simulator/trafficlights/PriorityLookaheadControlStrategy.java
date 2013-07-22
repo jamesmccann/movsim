@@ -74,15 +74,12 @@ public class PriorityLookaheadControlStrategy implements ControlStrategy {
     }
 
     private void setNextPhaseIndex() {
-        if (nextPhaseIndex != -1) {
-            return;
-        }
         // set next to the current highest priority phase
         int targetPhaseIndex = highestPriorityPhase();
-        System.out.println("current phase index: " + currentPhaseIndex);
-        System.out.println("priority strategy setting next phase to " + targetPhaseIndex);
 
         if (targetPhaseIndex != currentPhaseIndex) {
+            System.out.println("current phase index: " + currentPhaseIndex);
+            System.out.println("priority strategy setting next phase to " + targetPhaseIndex);
             nextPhaseIndex = targetPhaseIndex;
         }
     }
@@ -94,8 +91,8 @@ public class PriorityLookaheadControlStrategy implements ControlStrategy {
         // extend the green time for the current phase by the
         // step that gives the lowest overall cost of switching phases
         double minCost = Double.MAX_VALUE;
-        double minLookahead = 0;
-        for (int currentLookahead = 0; currentLookahead < this.conditionLookahead; currentLookahead += 1) {
+        int minLookahead = 0;
+        for (int currentLookahead = 0; currentLookahead <= this.conditionLookahead; currentLookahead += 1) {
             double currentCost = 0.0;
             for (TrafficLight trafficLight : trafficLights.values()) {
                 for (VehicleApproach vehicleApproach : trafficLight.getVehicleApproaches()) {
@@ -105,6 +102,7 @@ public class PriorityLookaheadControlStrategy implements ControlStrategy {
                     }
                 }
             }
+            System.out.println("Estimated cost for lookahead " + currentLookahead + ": " + currentCost);
 
             if (currentCost < minCost) {
                 minCost = currentCost;
@@ -113,7 +111,7 @@ public class PriorityLookaheadControlStrategy implements ControlStrategy {
         }
 
         this.targetExtendedGreenTime = minLookahead;
-        System.out.println("Optimal lookahead for current phase: " + minCost);
+        System.out.println("Optimal lookahead for current phase: " + minLookahead);
     }
 
     private int highestPriorityPhase() {
@@ -136,7 +134,7 @@ public class PriorityLookaheadControlStrategy implements ControlStrategy {
                     currentPhaseCost += trafficLights.get(state.getName()).getDelayCost();
                 }
             }
-            LOG.info("phase: " + i + ", currentCost: " + currentPhaseCost);
+            LOG.debug("phase: " + i + ", currentCost: " + currentPhaseCost);
             if (currentPhaseCost > highestApproachCost) {
                 highestApproachCost = currentPhaseCost;
                 highestPhaseIndex = i;
@@ -155,7 +153,7 @@ public class PriorityLookaheadControlStrategy implements ControlStrategy {
             }
         }
         if (currentApproachStoppingCost < highestApproachCost) {
-            LOG.info("hp phase stopping cost highest: " + highestPhaseIndex + ", " + highestApproachCost + " > "
+            LOG.debug("hp phase stopping cost highest: " + highestPhaseIndex + ", " + highestApproachCost + " > "
                     + currentApproachStoppingCost);
             return highestPhaseIndex;
         }
@@ -177,8 +175,9 @@ public class PriorityLookaheadControlStrategy implements ControlStrategy {
         Phase currentPhase = phases.get(currentPhaseIndex);
         if (phaseMinimumConditionFulfilled(currentPhase)) {
             // we would switch now, but we can check if the green time should be extended
-
+            determineTargetExtendedGreenTime();
         }
+
         return (phaseMinimumConditionFulfilled(currentPhase) && extendedGreenTimeConditionFulfilled());
     }
 

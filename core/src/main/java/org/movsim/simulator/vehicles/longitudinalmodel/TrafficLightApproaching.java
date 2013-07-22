@@ -225,10 +225,14 @@ public class TrafficLightApproaching {
 
     private void updateAndBroadcastApproach(Vehicle veh, TrafficLight trafficLight) {
         VehiclePriority p = veh.getPriority();
-        VehicleApproach approach = new VehicleApproach(veh.getWeight(), veh.getAcc(), veh.getSpeed(), p.getUrgency(),
+        VehicleApproach approach = new VehicleApproach(veh.getVehicleClass().getWeight(), veh.getAcc(), veh.getSpeed(),
+                p.getUrgency(),
                 veh.getInstantaneousCost(), controlledDelayTime, p.getNumberOfPassengers(), distanceToTrafficlight,
                 veh.getVehicleClass());
         long vehicleId = veh.getId();
+
+        // clear old approach and add new one
+        trafficLight.removeVehicleApproach(vehicleId);
         trafficLight.addVehicleApproach(vehicleId, approach);
         lastBroadcastApproach = approach;
     }

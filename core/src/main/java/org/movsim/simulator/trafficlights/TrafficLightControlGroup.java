@@ -99,6 +99,7 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
         controlStrategy.update(dt);
  
         determinePhase();
+        updatePhase();
         updateTrafficLightApproaches(dt);
         if (recordDataCallback != null) {
             recordDataCallback.recordData(simulationTime, iterationCount, trafficLights.values());
@@ -106,31 +107,30 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
     }
 
     private void determinePhase() {
-        if (controlStrategy.checkNextPhaseRequest()) {
-            updatePhase();
+        if (nextPhaseIndex == -1 && controlStrategy.checkNextPhaseRequest()) {
+            nextPhaseIndex = controlStrategy.getNextPhaseIndex();
         }
     }
 
     public void updatePhase() {
-        nextPhaseIndex = controlStrategy.getNextPhaseIndex();
         if (nextPhaseIndex == -1) { return; } //no update required
+
         Phase phase = phases.get(currentPhaseIndex);
-        
         // check if we need to initiate a phase change
         if (!intergreen && currentIntergreenDuration == 0) {
-            LOG.info("setting current phase to intergreen");
+            LOG.debug("setting current phase to intergreen");
             setIntergreen(phase);
         }
 
         // check if a current intergreen period has finished, start all red period
         if (!allRed && currentIntergreenDuration >= phase.getIntergreen()) {
-            LOG.info("setting current phase to allred");
+            LOG.debug("setting current phase to allred");
             setAllRed(phase);
         }
 
         // check if a current all red period has finished, go to the next phase
         if (currentAllRedDuration >= phase.getAllRed()) {
-            LOG.info("setting next phase");
+            LOG.debug("setting next phase");
             nextPhase();
         }
     }
@@ -236,8 +236,36 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
         return controlStrategy.getNextPhaseIndex();
     }
 
-    public int getCurrentPhase() {
+    public int getCurrentPhaseIndex() {
         return currentPhaseIndex;
     }
 
+    public Phase getCurrentPhase() {
+        return phases.get(currentPhaseIndex);
+    }
+
+    public double getTotalStoppingCost() {
+        double totalCost = 0.0;
+        for (TrafficLight trafficLight : trafficLights.values()) {
+            totalCost += trafficLight.getApproachCost();
+        }
+        return totalCost;
+    }
+
+    public double getTotalDelayCost() {
+        double totalCost = 0.0;
+        for (TrafficLight trafficLight : trafficLights.values()) {
+            totalCost += trafficLight.getDelayCost();
+        }
+        return totalCost;
+    }
+
+    public double getTotalCost() {
+        double totalCost = 0.0;
+        for (TrafficLight trafficLight : trafficLights.values()) {
+            totalCost += trafficLight.getDelayCost();
+            totalCost += trafficLight.getApproachCost();
+        }
+        return totalCost;
+    }
 }

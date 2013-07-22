@@ -7,6 +7,7 @@ import javax.swing.GroupLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.movsim.autogen.Phase;
 import org.movsim.simulator.SimulationRunnable;
 import org.movsim.simulator.Simulator;
 import org.movsim.simulator.trafficlights.TrafficLightControlGroup;
@@ -26,6 +27,10 @@ public class TrafficControllerStatusPanel extends JPanel implements SimulationRu
     private JLabel lblStrategyName;
     
     private JLabel lblCurrentStrategyName;
+    
+    private JLabel lblMinDuration;
+    
+    private JLabel lblCurrentMinDuration;
     
     private JLabel lblDuration;
     
@@ -77,6 +82,12 @@ public class TrafficControllerStatusPanel extends JPanel implements SimulationRu
         lblCurrentStrategyName = new JLabel("");
         lblCurrentStrategyName.setFont(font);
         
+        // min duration
+        lblMinDuration = new JLabel("Min Duration: ");
+        lblMinDuration.setFont(font);
+        lblCurrentMinDuration = new JLabel("");
+        lblCurrentMinDuration.setFont(font);
+        
         // duration
         lblDuration = new JLabel("Current Phase Duration: ");
         lblDuration.setFont(font);
@@ -90,11 +101,28 @@ public class TrafficControllerStatusPanel extends JPanel implements SimulationRu
         lblCurrentPhase.setFont(font);
         
         // next phase
-        lblNextPhase = new JLabel("Current Phase: ");
+        lblNextPhase = new JLabel("Next Phase: ");
         lblNextPhase.setFont(font);
         lblCurrentNextPhase = new JLabel("");
         lblCurrentNextPhase.setFont(font);
         
+        // delay cost
+        lblTotalDelayCost = new JLabel("Total Delay Cost: ");
+        lblTotalDelayCost.setFont(font);
+        lblCurrentTotalDelayCost = new JLabel("");
+        lblCurrentTotalDelayCost.setFont(font);
+        
+        // stopping cost
+        lblTotalStoppingCost = new JLabel("Total Stopping Cost: ");
+        lblTotalStoppingCost.setFont(font);
+        lblCurrentTotalStoppingCost = new JLabel("");
+        lblCurrentTotalStoppingCost.setFont(font);
+        
+        // total cost
+        lblTotalCost = new JLabel("Total Cost: ");
+        lblTotalCost.setFont(font);
+        lblCurrentTotalCost = new JLabel("");
+        lblCurrentTotalCost.setFont(font);
         
         GroupLayout layout = new GroupLayout(this);
         this.setLayout(layout);
@@ -105,16 +133,24 @@ public class TrafficControllerStatusPanel extends JPanel implements SimulationRu
                                                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
                                                         .addComponent(lblControllerName)
                                                         .addComponent(lblStrategyName)
+                                                        .addComponent(lblMinDuration)
                                                         .addComponent(lblDuration)
                                                         .addComponent(lblPhase)
                                                         .addComponent(lblNextPhase)
+                                                        .addComponent(lblTotalDelayCost)
+                                                        .addComponent(lblTotalStoppingCost)
+                                                        .addComponent(lblTotalCost)
                                                  )
                                                  .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                                                          .addComponent(lblCurrentControllerName)
                                                          .addComponent(lblCurrentStrategyName)
+                                                         .addComponent(lblCurrentMinDuration)
                                                          .addComponent(lblCurrentDuration)
                                                          .addComponent(lblCurrentPhase)
                                                          .addComponent(lblCurrentNextPhase)
+                                                         .addComponent(lblCurrentTotalDelayCost)
+                                                         .addComponent(lblCurrentTotalStoppingCost)
+                                                         .addComponent(lblCurrentTotalCost)
                                                  )
         );
         
@@ -128,6 +164,10 @@ public class TrafficControllerStatusPanel extends JPanel implements SimulationRu
                                                         .addComponent(lblCurrentStrategyName) 
                                                 )
                                                 .addGroup( layout.createParallelGroup( GroupLayout.Alignment.BASELINE )
+                                                        .addComponent(lblMinDuration)
+                                                        .addComponent(lblCurrentMinDuration) 
+                                                )
+                                                .addGroup( layout.createParallelGroup( GroupLayout.Alignment.BASELINE )
                                                         .addComponent(lblDuration)
                                                         .addComponent(lblCurrentDuration) 
                                                 )
@@ -138,6 +178,18 @@ public class TrafficControllerStatusPanel extends JPanel implements SimulationRu
                                                 .addGroup( layout.createParallelGroup( GroupLayout.Alignment.BASELINE )
                                                         .addComponent(lblNextPhase)
                                                         .addComponent(lblCurrentNextPhase) 
+                                                )
+                                                .addGroup( layout.createParallelGroup( GroupLayout.Alignment.BASELINE )
+                                                        .addComponent(lblTotalDelayCost)
+                                                        .addComponent(lblCurrentTotalDelayCost) 
+                                                )
+                                                .addGroup( layout.createParallelGroup( GroupLayout.Alignment.BASELINE )
+                                                        .addComponent(lblTotalStoppingCost)
+                                                        .addComponent(lblCurrentTotalStoppingCost) 
+                                                )
+                                                .addGroup( layout.createParallelGroup( GroupLayout.Alignment.BASELINE )
+                                                        .addComponent(lblTotalCost)
+                                                        .addComponent(lblCurrentTotalCost) 
                                                 )
         );
     }
@@ -156,9 +208,14 @@ public class TrafficControllerStatusPanel extends JPanel implements SimulationRu
     public void updateStatus(double simulationTime) {
         if (trafficController == null) return; 
         lblCurrentDuration.setText(String.format("%.2f", trafficController.getPhaseTime()));
-        lblCurrentPhase.setText(Integer.toString(trafficController.getCurrentPhase()));
+        lblCurrentPhase.setText(Integer.toString(trafficController.getCurrentPhaseIndex()));
         lblCurrentNextPhase.setText(Integer.toString(trafficController.getNextPhase()));
         
+        Phase current = trafficController.getCurrentPhase();
+        lblCurrentMinDuration.setText(String.format("%.2f", current.getMin()));
+        lblCurrentTotalDelayCost.setText(String.format("%.2f", trafficController.getTotalDelayCost()));
+        lblCurrentTotalStoppingCost.setText(String.format("%.2f", trafficController.getTotalStoppingCost()));
+        lblCurrentTotalCost.setText(String.format("%.2f", trafficController.getTotalCost()));
     }
 
 }

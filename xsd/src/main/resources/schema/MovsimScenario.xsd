@@ -453,6 +453,7 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element ref="TrafficComposition" />
+                <xs:element ref="SCATSDataFile" />
                 <xs:element ref="Road" minOccurs="0" maxOccurs="unbounded" />
             </xs:sequence>
             <xs:attribute name="timestep" type="positiveDouble" use="required" />
@@ -493,6 +494,11 @@
             <xs:enumeration value="gaussian" />
         </xs:restriction>
     </xs:simpleType>
+    <xs:element name="SCATSDataFile">
+    	<xs:complexType>
+    		<xs:attribute name="filename" type="xs:string" use="required" />
+    	</xs:complexType>
+    </xs:element>
     <!-- Road also used in Routes definition without subelements. -->
     <xs:element name="Road">
         <xs:complexType>
@@ -541,6 +547,7 @@
 			<xs:choice>
                 <xs:element ref="Inflow" maxOccurs="unbounded" />
                 <xs:element ref="InflowFromFile" minOccurs="1" maxOccurs="1" />
+                <xs:element ref="SCATSDataFileInflow" maxOccurs="1" />
             </xs:choice>
             <xs:attribute name="logging" type="xs:boolean" default="false" />
         </xs:complexType>
@@ -574,6 +581,11 @@
             <xs:attribute name="column_comment" type="positiveInteger" />
             <xs:attribute name="column_separator" type="xs:string" default=";" />
         </xs:complexType>
+    </xs:element>
+    <xs:element name="SCATSDataFileInflow">
+    	<xs:complexType>
+    		<xs:attribute name="approachId" type="xs:string" use="required" />	
+    	</xs:complexType>
     </xs:element>
     <xs:element name="TrafficSink">
         <xs:complexType>
@@ -666,6 +678,7 @@
             <xs:attribute name="max" type="nonNegativeDouble" default="180"/>
             <xs:attribute name="intergreen" type="nonNegativeDouble" use="optional"/>
             <xs:attribute name="all_red" type="nonNegativeDouble" use="optional"/>
+            <xs:attribute name="id" type="xs:string" use="optional" />
         </xs:complexType>
     </xs:element>
     <xs:element name="TrafficLightState">

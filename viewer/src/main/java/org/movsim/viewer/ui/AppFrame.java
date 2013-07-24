@@ -109,16 +109,16 @@ public class AppFrame extends JFrame {
     }
 
     private void initFrameSize(Properties properties) {
-        // setSize(450, 550); 
-        // return;
+        setSize(850, 550); 
+        return;
         
-        int xPixSize = Integer.parseInt(properties.getProperty("xPixSizeWindow"));
-        int yPixSize = Integer.parseInt(properties.getProperty("yPixSizeWindow"));
-        if (xPixSize < 0 || yPixSize < 0) {
-            setExtendedState(Frame.MAXIMIZED_BOTH);
-        } else {
-            setSize(xPixSize, yPixSize);
-        }
+//        int xPixSize = Integer.parseInt(properties.getProperty("xPixSizeWindow"));
+//        int yPixSize = Integer.parseInt(properties.getProperty("yPixSizeWindow"));
+//        if (xPixSize < 0 || yPixSize < 0) {
+//            setExtendedState(Frame.MAXIMIZED_BOTH);
+//        } else {
+//            setSize(xPixSize, yPixSize);
+//        }
     }
 
     private void addMenu(ResourceBundle resourceBundle, Simulator simulator, TrafficCanvas trafficCanvas,

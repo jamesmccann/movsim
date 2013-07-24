@@ -40,6 +40,7 @@ import org.movsim.autogen.MicroIC;
 import org.movsim.autogen.Movsim;
 import org.movsim.autogen.Parking;
 import org.movsim.autogen.Road;
+import org.movsim.autogen.SCATSDataFile;
 import org.movsim.autogen.Simulation;
 import org.movsim.autogen.TrafficSink;
 import org.movsim.input.ProjectMetaData;
@@ -58,10 +59,13 @@ import org.movsim.simulator.roadnetwork.Lanes;
 import org.movsim.simulator.roadnetwork.MicroInflowFileReader;
 import org.movsim.simulator.roadnetwork.RoadNetwork;
 import org.movsim.simulator.roadnetwork.RoadSegment;
+import org.movsim.simulator.roadnetwork.SCATSFileReader;
 import org.movsim.simulator.roadnetwork.SimpleRamp;
 import org.movsim.simulator.roadnetwork.TrafficSourceMacro;
 import org.movsim.simulator.roadnetwork.TrafficSourceMicro;
 import org.movsim.simulator.roadnetwork.routing.Routing;
+import org.movsim.simulator.trafficlights.ParsedSCATSDataControlStrategy;
+import org.movsim.simulator.trafficlights.TrafficLightControlGroup;
 import org.movsim.simulator.trafficlights.TrafficLights;
 import org.movsim.simulator.vehicles.TestVehicle;
 import org.movsim.simulator.vehicles.TrafficCompositionGenerator;
@@ -96,6 +100,8 @@ public class Simulator implements SimulationTimeStep, SimulationRun.CompletionCa
     private final SimulationRunnable simulationRunnable;
     private int obstacleCount;
     private long timeOffsetMillis;
+
+    private SCATSFileReader scatsFileReader;
 
     /**
      * Constructor.
@@ -163,6 +169,21 @@ public class Simulator implements SimulationTimeStep, SimulationRun.CompletionCa
         }
 
         trafficLights = new TrafficLights(inputData.getScenario().getTrafficLights(), roadNetwork);
+
+        // check if we have a SCATS data file present in the XML
+        // if yes, this simulation should use parse the SCATS data for
+        // traffic controller times and traffic source inflows
+        if (simulationInput.getSCATSDataFile() != null) {
+            SCATSDataFile dataFile = simulationInput.getSCATSDataFile();
+            scatsFileReader = new SCATSFileReader(this, dataFile.getFilename(), dataFile.getControllerId(),
+                    dataFile.getIntersectionId());
+            for (TrafficLightControlGroup tlcg : trafficLights.getTrafficLightControlGroups()) {
+                if (tlcg.groupId().equals(dataFile.getControllerId())) {
+                    ParsedSCATSDataControlStrategy strategy = (ParsedSCATSDataControlStrategy) tlcg.controlStrategy;
+                    strategy.scatsFileReader = scatsFileReader;
+                }
+            }
+        }
 
         reset();
     }

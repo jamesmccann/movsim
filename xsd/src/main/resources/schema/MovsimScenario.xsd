@@ -497,6 +497,8 @@
     <xs:element name="SCATSDataFile">
     	<xs:complexType>
     		<xs:attribute name="filename" type="xs:string" use="required" />
+    		<xs:attribute name="controllerId" type="xs:string" use="required" />
+    		<xs:attribute name="intersectionId" type="xs:string" use="required" />
     	</xs:complexType>
     </xs:element>
     <!-- Road also used in Routes definition without subelements. -->

@@ -62,6 +62,8 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
             controlStrategy = new PriorityActuatedControlStrategy(strategy, phases, trafficLights);
         } else if (strategy.getType().equals("PriorityLookahead")) {
             controlStrategy = new PriorityLookaheadControlStrategy(strategy, phases, trafficLights);
+        } else if (strategy.getType().equals("SCATSData")) {
+            controlStrategy = new ParsedSCATSDataControlStrategy(strategy, phases, trafficLights);
         } else {
             // default is VehicleActuated
             controlStrategy = new VehicleActuatedControlStrategy(strategy, phases, trafficLights);

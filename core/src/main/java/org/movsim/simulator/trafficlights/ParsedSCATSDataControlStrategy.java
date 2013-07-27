@@ -88,10 +88,10 @@ public class ParsedSCATSDataControlStrategy implements ControlStrategy {
         }
 
         Phase currentPhase = phases.get(currentPhaseIndex);
-        System.out.println("Current Phase: " + currentPhase.getId() + ", duration: "
-                + String.format("%.2f", currentPhaseDuration) + ", cycle: "
-                + String.format("%.2f", currentCycleDuration) + ", targetPhase: " + targetPhaseDuration
-                + ", targetCycle " + targetCycleDuration);
+        // System.out.println("Current Phase: " + currentPhase.getId() + ", duration: "
+        // + String.format("%.2f", currentPhaseDuration) + ", cycle: "
+        // + String.format("%.2f", currentCycleDuration) + ", targetPhase: " + targetPhaseDuration
+        // + ", targetCycle " + targetCycleDuration);
     }
 
     @Override
@@ -138,7 +138,9 @@ public class ParsedSCATSDataControlStrategy implements ControlStrategy {
             if (targetPhaseIndex == currentPhaseIndex && nextPhaseIndex == -1) {
                 // no change, but reset phase counter
                 currentPhaseDuration = 0;
-                if (nextCycleOnPhaseChange) currentCycleDuration = 0;
+                if (nextCycleOnPhaseChange) {
+                    currentCycleDuration = 0;
+                }
                 targetPhaseDuration = targetPhaseDurations.get(phases.get(currentPhaseIndex).getId());
                 targetPhaseDurations.remove(phases.get(currentPhaseIndex).getId());
             }

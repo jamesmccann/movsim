@@ -28,7 +28,7 @@
         </VehiclePrototypeConfiguration>
     </VehiclePrototypes>
     <Scenario network_filename="four_way_junction.xodr">
-        <Simulation timestep="0.2" crash_exit="false">
+        <Simulation timestep="0.2" duration="46800" crash_exit="false">
             <TrafficComposition>
                 <VehicleType label="IDM1" fraction="0.4" relative_v0_randomization="0.2" />
                 <VehicleType label="ACC1" fraction="0.4" relative_v0_randomization="0.2" />
@@ -42,15 +42,15 @@
                     <VehicleType label="IDM2" fraction="0.2" relative_v0_randomization="0.2" />
                 </TrafficComposition>
                 <InitialConditions />
-                <TrafficSource logging="false">
-                    <Inflow t="0" q_per_hour="200" />
+                <TrafficSource logging="false" id="13">
+                    <Inflow t="0" q_per_hour="200" v="13" />
                 </TrafficSource>
                 <Detectors />
             </Road>
             <Road id="3">
                 <InitialConditions />
-                <TrafficSource logging="false">
-                    <Inflow t="0" q_per_hour="300" />
+                <TrafficSource logging="false" id="12">
+                    <Inflow t="0" q_per_hour="300" v="13" />
                 </TrafficSource>
                 <Detectors />
             </Road>

@@ -300,7 +300,8 @@ public class Simulator implements SimulationTimeStep, SimulationRun.CompletionCa
             AbstractTrafficSource trafficSource = null;
             if (trafficSourceData.isSetInflow()) {
                 InflowTimeSeries inflowTimeSeries = new InflowTimeSeries(trafficSourceData.getInflow());
-                trafficSource = new TrafficSourceMacro(composition, roadSegment, inflowTimeSeries);
+                trafficSource = new TrafficSourceMacro(trafficSourceData.getId(), composition, roadSegment,
+                        inflowTimeSeries);
             } else if (trafficSourceData.isSetInflowFromFile()) {
                 trafficSource = new TrafficSourceMicro(composition, roadSegment);
                 MicroInflowFileReader reader = new MicroInflowFileReader(trafficSourceData.getInflowFromFile(),

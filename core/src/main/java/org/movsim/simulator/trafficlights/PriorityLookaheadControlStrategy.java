@@ -47,6 +47,7 @@ public class PriorityLookaheadControlStrategy implements ControlStrategy {
         this.conditionGapTime = strategy.getGap();
         this.conditionRange = strategy.getRange();
         this.conditionLookahead = 5;
+        this.targetExtendedGreenTime = 0;
     }
 
     @Override
@@ -56,7 +57,8 @@ public class PriorityLookaheadControlStrategy implements ControlStrategy {
         if (nextPhaseIndex != -1) {
             currentMaximumDuration += dt;
         }
-        if (targetExtendedGreenTime != -1) {
+
+        if (targetExtendedGreenTime != 0 && !extendedGreenTimeConditionFulfilled()) {
             currentExtendedGreenDuration += dt;
         }
 
@@ -85,6 +87,7 @@ public class PriorityLookaheadControlStrategy implements ControlStrategy {
     }
 
     public void determineTargetExtendedGreenTime() {
+        System.out.println("Determining target extended green time");
         // step a second at a time from now to the lookahead range
         // for each step: calculate the overall cost of switching phases
         // and compare to the cost of switching phases at the request time
@@ -173,7 +176,7 @@ public class PriorityLookaheadControlStrategy implements ControlStrategy {
         // If we have a next phase set and the minimum has been exceeded
         // then we can switch
         Phase currentPhase = phases.get(currentPhaseIndex);
-        if (phaseMinimumConditionFulfilled(currentPhase)) {
+        if (phaseMinimumConditionFulfilled(currentPhase) && targetExtendedGreenTime <= 0) {
             // we would switch now, but we can check if the green time should be extended
             determineTargetExtendedGreenTime();
         }
@@ -188,6 +191,8 @@ public class PriorityLookaheadControlStrategy implements ControlStrategy {
         currentPhaseDuration = 0;
         currentGapDuration = 0;
         currentMaximumDuration = 0;
+        currentExtendedGreenDuration = 0;
+        targetExtendedGreenTime = 0;
     }
 
     public int getNextPhaseIndex() {

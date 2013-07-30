@@ -28,6 +28,7 @@ package org.movsim.simulator.roadnetwork;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.movsim.simulator.SimulationTimeStep;
 import org.movsim.simulator.roadnetwork.routing.Route;
@@ -407,6 +408,20 @@ public class RoadNetwork implements SimulationTimeStep, Iterable<RoadSegment> {
             instantaneousConsumption += roadSegment.instantaneousConsumptionLitersPerSecond();
         }
         return instantaneousConsumption;
+    }
+
+    public List<RoadSegment> getRoadSegments() {
+        return roadSegments;
+    }
+
+    public List<AbstractTrafficSource> getTrafficSources() {
+        ArrayList<AbstractTrafficSource> trafficSources = new ArrayList<AbstractTrafficSource>();
+        for (RoadSegment roadSegment : roadSegments) {
+            if (roadSegment.trafficSource() != null) {
+                trafficSources.add(roadSegment.trafficSource());
+            }
+        }
+        return trafficSources;
     }
 
 }

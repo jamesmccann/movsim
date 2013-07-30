@@ -28,6 +28,8 @@ public class VehicleApproach {
 
     public final double distanceToTrafficLight;
 
+    public double incurredStoppingCost;
+
     public VehicleApproach(double mass, double acceleration, double speed, int urgency, double costOfStopping,
             double delayTime, int NoOfPassengers, double distance, VehicleClass vehicleClass) {
         this.vehicleMass = mass;

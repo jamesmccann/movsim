@@ -65,6 +65,10 @@ public class TrafficLightApproaching {
      */
     private double lastBroadcastTime;
 
+    private double incurredStoppingCost;
+
+    private boolean stoppingCostBroadcast;
+
     /**
      * Instantiates a new traffic light approaching.
      */
@@ -72,6 +76,7 @@ public class TrafficLightApproaching {
         considerTrafficLight = false;
         distanceToTrafficlight = MovsimConstants.INVALID_GAP;
         lastBroadcastApproach = null;
+        stoppingCostBroadcast = false;
     }
 
     /**
@@ -148,6 +153,10 @@ public class TrafficLightApproaching {
                     }
                 }
             }
+        }
+
+        if (!stoppingCostBroadcast && considerTrafficLight) {
+            incurredStoppingCost = me.getInstantaneousCost();
         }
     }
 
@@ -229,6 +238,12 @@ public class TrafficLightApproaching {
                 p.getUrgency(),
                 veh.getInstantaneousCost(), controlledDelayTime, p.getNumberOfPassengers(), distanceToTrafficlight,
                 veh.getVehicleClass());
+        
+        if (!stoppingCostBroadcast && incurredStoppingCost != 0) {
+            stoppingCostBroadcast = true;
+            approach.incurredStoppingCost = incurredStoppingCost;
+        }
+
         long vehicleId = veh.getId();
 
         // clear old approach and add new one

@@ -25,7 +25,7 @@ public class SCATSFileReader {
      * Sources are stored and accessed by their approach ID, read in
      * from the SCATS data
      */
-    public Map<String, TrafficSourceMicro> trafficSources;
+    public Map<String, TrafficSourceMacro> trafficSources;
 
     public TrafficLightControlGroup trafficLightControlGroup;
 
@@ -34,6 +34,10 @@ public class SCATSFileReader {
     private File dataFile;
 
     private BufferedReader dataFileReader;
+    
+    private Cycle lastCycle;
+
+    private boolean eof;
     
     /**
      * Some SCATS data files contain information for multiple intersections
@@ -45,7 +49,6 @@ public class SCATSFileReader {
     public SCATSFileReader(Simulator simulator, String SCATSDataFileName, String controlGroupId, String intersectionId) {
         this.intersectionId = intersectionId;
         dataFile = FileUtils.lookupFilename(scatsFileDir + SCATSDataFileName);
-        System.out.println(dataFile);
         try {
             dataFileReader = new BufferedReader(new FileReader(dataFile));
         } catch (FileNotFoundException e) {
@@ -53,12 +56,22 @@ public class SCATSFileReader {
             e.printStackTrace();
         }
 
+        trafficSources = new HashMap<String, TrafficSourceMacro>();
+
+        // find the relevant intersection, check if it is using the SCATS control strategy
         for (TrafficLightControlGroup tlcg: simulator.getTrafficLights().getTrafficLightControlGroups()) {
             if (tlcg.groupId().equals(controlGroupId)) {
                 trafficLightControlGroup = tlcg;
-                controlStrategy = (ParsedSCATSDataControlStrategy) trafficLightControlGroup.controlStrategy;
-                break;
+                if (trafficLightControlGroup.controlStrategy.getClass() == ParsedSCATSDataControlStrategy.class) {
+                    controlStrategy = (ParsedSCATSDataControlStrategy) trafficLightControlGroup.controlStrategy;
+                    break;
+                }
             }
+        }
+        
+        for (AbstractTrafficSource trafficSource : simulator.getRoadNetwork().getTrafficSources()) {
+            TrafficSourceMacro source = (TrafficSourceMacro)trafficSource;
+            trafficSources.put(source.getId(), source);
         }
     }
 
@@ -66,16 +79,43 @@ public class SCATSFileReader {
      * Updates traffic controller with next cycle time, and desired phase green times
      * Updates each source with number of vehicles for the period
      */
-    public void update() {
+    public boolean update() {
+        if (eof) {
+            return false;
+        }
         try {
             Cycle nextCycle = parseNextCycle();
-            controlStrategy.targetCycleDuration = nextCycle.cycleDuration;
-            controlStrategy.targetPhaseDurations = nextCycle.phaseDurations;
+            if (nextCycle == null) {
+                // end of file reacehd
+                eof = true;
+                for (Map.Entry<String, Integer> approachInflow : lastCycle.approachInflows.entrySet()) {
+                    TrafficSourceMacro source = trafficSources.get(approachInflow.getKey());
+                    source.setInflow(0);
+                }
+                return false;
+            }
+
+            if (controlStrategy != null) {
+                controlStrategy.targetCycleDuration = nextCycle.cycleDuration;
+                controlStrategy.targetPhaseDurations = nextCycle.phaseDurations;
+            }
+
+            for (Map.Entry<String, Integer> approachInflow : nextCycle.approachInflows.entrySet()) {
+                TrafficSourceMacro source = trafficSources.get(approachInflow.getKey());
+                int numVehicles = approachInflow.getValue();
+                double inflow = numVehicles / (1.0 * nextCycle.cycleDuration);
+                System.out.println("Approach " + approachInflow.getKey() + ", vehicles: " + numVehicles + ", inflow: "
+                        + inflow);
+                source.setInflow(inflow);
+            }
+
+            lastCycle = nextCycle;
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Exception reading scats data");
         }
 
+        return true;
     }
     
     public Cycle parseNextCycle() throws IOException {
@@ -84,7 +124,10 @@ public class SCATSFileReader {
         // first line is the cycle information
         // Thursday 20-June-2013 06:00 SS  63   PL 3.1  PVs3.3 CT   33 +0 RL 33  SA 301 DS 14
         String data = dataFileReader.readLine();
-        cycle.cycleDuration = Integer.parseInt(getData(data, 55, 60));
+        if (data == null) {
+            return null;
+        }
+        cycle.cycleDuration = Integer.parseInt(getData(data, 56, 59));
 
         if (cycle.cycleDuration == 0) {
             throw new IOException();
@@ -118,7 +161,7 @@ public class SCATSFileReader {
                 cycle.phaseDurations.put(phaseId, phaseTime);
             }
 
-            String approachId = getData(data, 8, 13);
+            String approachId = getData(data, 9, 11);
             Integer approachCount = 0;
 
             // approach counts on V0

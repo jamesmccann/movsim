@@ -53,7 +53,7 @@ public class TrafficSourceTest {
 		final RoadSegment roadSegment = new RoadSegment(1000.0, 1);
         final List<Inflow> inflowDataPoints = new ArrayList<>();
 		final InflowTimeSeries inflowTimeSeries = new InflowTimeSeries(inflowDataPoints);
-		trafficSource = new TrafficSourceMacro(vehicleGenerator, roadSegment, inflowTimeSeries);
+        trafficSource = new TrafficSourceMacro("test", vehicleGenerator, roadSegment, inflowTimeSeries);
     }
 
     /**

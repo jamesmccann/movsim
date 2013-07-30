@@ -35,6 +35,9 @@ public class ParsedSCATSDataControlStrategy implements ControlStrategy {
 
     public boolean nextCycleOnPhaseChange;
 
+    // switch to static phases if reached end of scats data
+    public boolean staticPhases = false;
+
     /** mapping from the signal's name to the trafficlight, constructed by ControlGroup */
     private final Map<String, TrafficLight> trafficLights;
 
@@ -83,11 +86,16 @@ public class ParsedSCATSDataControlStrategy implements ControlStrategy {
         currentPhaseDuration += dt;
         currentCycleDuration += dt;
 
+        if (staticPhases) {
+            determineNextStaticPhase();
+            return;
+        }
+
         if (nextPhaseIndex == -1) {
             determineNextPhaseIndex();
         }
 
-        Phase currentPhase = phases.get(currentPhaseIndex);
+        // Phase currentPhase = phases.get(currentPhaseIndex);
         // System.out.println("Current Phase: " + currentPhase.getId() + ", duration: "
         // + String.format("%.2f", currentPhaseDuration) + ", cycle: "
         // + String.format("%.2f", currentCycleDuration) + ", targetPhase: " + targetPhaseDuration
@@ -111,7 +119,12 @@ public class ParsedSCATSDataControlStrategy implements ControlStrategy {
             if (targetPhaseDurations.isEmpty()) {
                 // trigger change to begin
                 LOG.info("SCATS Data Strategy setting next phase index");
-                scatsFileReader.update();
+                if (!scatsFileReader.update()) {
+                    // probably reached the end of the available SCATS data
+                    // return (will leave traffic lights unchanged)
+                    staticPhases = true;
+                    return;
+                }
                 nextCycleOnPhaseChange = true;
             }
 
@@ -157,6 +170,15 @@ public class ParsedSCATSDataControlStrategy implements ControlStrategy {
             nextCycleOnPhaseChange = false;
         }
         nextPhaseIndex = -1;
+    }
+
+    public void determineNextStaticPhase() {
+        if (currentPhaseDuration >= 30) {
+            nextPhaseIndex = currentPhaseIndex + 1;
+            if (nextPhaseIndex == phases.size()) {
+                nextPhaseIndex = 0;
+            }
+        }
     }
 
     @Override

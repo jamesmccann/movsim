@@ -47,21 +47,29 @@ public class TrafficSourceMacro extends AbstractTrafficSource {
 
     private int vehiclesWaiting;
 
+    private double totalInflowOverride = -1;
+
     /**
      * Instantiates a new upstream boundary .
      * 
      * @param vehGenerator
      *            the vehicle generator
      */
-    public TrafficSourceMacro(TrafficCompositionGenerator vehGenerator, RoadSegment roadSegment,
+    public TrafficSourceMacro(String id, TrafficCompositionGenerator vehGenerator, RoadSegment roadSegment,
             InflowTimeSeries inflowTimeSeries) {
         super(vehGenerator, roadSegment);
         this.inflowTimeSeries = inflowTimeSeries;
+        this.id = id;
     }
 
     @Override
     public void timeStep(double dt, double simulationTime, long iterationCount) {
-        final double totalInflow = (getTotalInflow(simulationTime));
+        double totalInflow;
+        if (totalInflowOverride > -1) {
+            totalInflow = totalInflowOverride;
+        } else {
+            totalInflow = (getTotalInflow(simulationTime));
+        }
         nWait += dt;
 
         calcApproximateInflow(dt);
@@ -74,6 +82,7 @@ public class TrafficSourceMacro extends AbstractTrafficSource {
             }
         }
 
+        // System.out.println("Source " + id + ", nextArrival: " + nextArrivalInterval);
         if (nWait >= nextArrivalInterval) {
             nWait = 0;
             nextArrivalInterval = getPoissonInterarrivalDelay(totalInflow);
@@ -83,7 +92,7 @@ public class TrafficSourceMacro extends AbstractTrafficSource {
             }
 
             // haven't entered a vehicle, add to wait queue
-            addWaitingVehicle();
+            // addWaitingVehicle();
         }
     }
     
@@ -234,6 +243,12 @@ public class TrafficSourceMacro extends AbstractTrafficSource {
 
     public int getVehiclesWaiting() {
         return vehiclesWaiting;
+    }
+
+    public void setInflow(double inflow) {
+        this.totalInflowOverride = inflow;
+        // reset next arrival
+        nextArrivalInterval = getPoissonInterarrivalDelay(inflow);
     }
 
 }

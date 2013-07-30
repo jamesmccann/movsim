@@ -16,6 +16,8 @@ public abstract class AbstractTrafficSource implements SimulationTimeStep {
 
     /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(AbstractTrafficSource.class);
+    
+    protected String id;
 
     public interface RecordDataCallback {
         /**
@@ -161,6 +163,10 @@ public abstract class AbstractTrafficSource implements SimulationTimeStep {
                     "source=%d with measured inflow Q=%.1f/h over all lanes and queue length %d of waiting vehicles",
                     roadSegment.id(), measuredInflow * Units.INVS_TO_INVH, getQueueLength()));
         }
+    }
+    
+    public String getId() {
+        return id;
     }
 
 }

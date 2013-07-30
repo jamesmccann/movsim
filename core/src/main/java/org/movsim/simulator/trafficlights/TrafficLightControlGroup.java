@@ -43,6 +43,10 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
 
     private boolean allRed;
 
+    private double cumulativeStoppingCost;
+
+    private double cumulativeDelayCost;
+
     /** mapping from the signal's name to the trafficlight */
     private final Map<String, TrafficLight> trafficLights = new HashMap<>();
 
@@ -199,6 +203,12 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
         }
     }
 
+    public void calcPhaseDelayCost(Phase phase) {
+        for (TrafficLightState state : phase.getTrafficLightState()) {
+            // if the state is green now
+        }
+    }
+
     public interface RecordDataCallback {
         /**
          * Callback to allow the application to process or record the traffic light data.
@@ -269,5 +279,21 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
             totalCost += trafficLight.getApproachCost();
         }
         return totalCost;
+    }
+
+    public double getCumulativeStoppingCost() {
+        double cumulativeStoppingCost = 0.0;
+        for (TrafficLight trafficLight : trafficLights.values()) {
+            cumulativeStoppingCost += trafficLight.getCumulativeStoppingCost();
+        }
+        return cumulativeStoppingCost;
+    }
+
+    public double getCumulativeDelayCost() {
+        double cumulativeDelayCost = 0.0;
+        for (TrafficLight trafficLight : trafficLights.values()) {
+            cumulativeDelayCost += trafficLight.getCumulativeDelayCost();
+        }
+        return cumulativeDelayCost;
     }
 }

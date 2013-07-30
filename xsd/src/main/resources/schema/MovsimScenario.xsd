@@ -497,7 +497,7 @@
     <xs:element name="SCATSDataFile">
     	<xs:complexType>
     		<xs:attribute name="filename" type="xs:string" use="required" />
-    		<xs:attribute name="controllerId" type="xs:string" use="required" />
+    		<xs:attribute name="controllerId" type="xs:string" use="optional" />
     		<xs:attribute name="intersectionId" type="xs:string" use="required" />
     	</xs:complexType>
     </xs:element>
@@ -511,7 +511,7 @@
                 <xs:element ref="TrafficSource" minOccurs="0" maxOccurs="1" />
                 <xs:element ref="TrafficSink" minOccurs="0" maxOccurs="1" />
                 <xs:element ref="FlowConservingInhomogeneities" minOccurs="0" maxOccurs="1" />
-                <!--                 <xs:element ref="SpeedLimits" minOccurs="0" maxOccurs="1" /> -->
+                <!--  				 <xs:element ref="SpeedLimits" minOccurs="0" maxOccurs="1" /> -->
                 <!--                 <xs:element ref="Slopes" minOccurs="0" maxOccurs="1" /> -->
                 <xs:element ref="SimpleRamp" minOccurs="0" maxOccurs="1" />
                 <xs:element ref="Detectors" minOccurs="0" maxOccurs="1" />
@@ -548,10 +548,11 @@
         <xs:complexType>
 			<xs:choice>
                 <xs:element ref="Inflow" maxOccurs="unbounded" />
-                <xs:element ref="InflowFromFile" minOccurs="1" maxOccurs="1" />
+                <xs:element ref="InflowFromFile" maxOccurs="1" />
                 <xs:element ref="SCATSDataFileInflow" maxOccurs="1" />
             </xs:choice>
             <xs:attribute name="logging" type="xs:boolean" default="false" />
+            <xs:attribute name="id" type="xs:string" use="optional" />
         </xs:complexType>
     </xs:element>
     <xs:element name="Inflow">

@@ -650,6 +650,8 @@
                 <xs:element ref="ControllerGroup" minOccurs="0" maxOccurs="unbounded" />
             </xs:sequence>
             <xs:attribute name="n_timestep" type="positiveInteger" default="1" />
+            <xs:attribute name="s_timestep" type="positiveInteger" default="1" />
+            <xs:attribute name="phase_step" type="positiveInteger" default="1" />
             <xs:attribute name="logging" type="xs:boolean" default="false" />
         </xs:complexType>
     </xs:element>

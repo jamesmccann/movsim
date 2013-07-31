@@ -37,25 +37,32 @@ import com.google.common.base.Preconditions;
 public class FileTrafficLightControllerRecorder extends FileOutputBase implements
         TrafficLightControlGroup.RecordDataCallback {
 
-    private static final String extensionFormat = ".controllerGroup_%s.firstSignal_%s.csv";
+    private static final String extensionFormat = ".controllerGroup_%s_%s.csv";
     private final int nTimestep;
+    private final int sTimestep;
+    private final int phaseStep;
+
+    private double nextOutputTime;
 
     /**
      * Constructor.
      * 
      * @param nTimestep
      *            the n'th timestep
-     * @param trafficLights
-     *            the traffic lights
      */
-    public FileTrafficLightControllerRecorder(TrafficLightControlGroup group, int nTimestep) {
+    public FileTrafficLightControllerRecorder(TrafficLightControlGroup group, int nTimestep, int sTimestep,
+            int phaseStep) {
         super(ProjectMetaData.getInstance().getOutputPath(), ProjectMetaData.getInstance().getProjectName());
         Preconditions.checkArgument(!group.groupId().isEmpty());
         Preconditions.checkArgument(!group.firstSignalId().isEmpty());
         this.nTimestep = nTimestep;
+        this.sTimestep = sTimestep;
+        this.phaseStep = phaseStep;
+        nextOutputTime = nTimestep;
+        String formattedTime = ProjectMetaData.getInstance()
+                .getFormatedTimeWithOffset(System.currentTimeMillis() * 1000).replaceAll("\\s", "");
         String groupName = group.groupId().replaceAll("\\s", "");
-        String firstSignalId = group.firstSignalId().replaceAll("\\s", "");
-        writer = Preconditions.checkNotNull(createWriter(String.format(extensionFormat, groupName, firstSignalId)));
+        writer = Preconditions.checkNotNull(createWriter(String.format(extensionFormat, groupName, formattedTime)));
     }
 
     /**
@@ -73,11 +80,27 @@ public class FileTrafficLightControllerRecorder extends FileOutputBase implement
         if (iterationCount == 0) {
             writeHeader(trafficLights);
         }
-        if (iterationCount % nTimestep != 0) {
+        if (iterationCount % nTimestep != 0 || simulationTime <= nextOutputTime) {
             return;
         }
+        nextOutputTime = simulationTime + sTimestep;
+
         String formattedTime = ProjectMetaData.getInstance().getFormatedTimeWithOffset(simulationTime);
         writeData(simulationTime, formattedTime, trafficLights);
+    }
+
+    @Override
+    public void recordPhase(double simulationTime, long iterationCount, int phaseCount, ControlStrategy strategy,
+            Iterable<TrafficLight> trafficLights) {
+        if (phaseCount == 0) {
+            writePhaseFileHeader(strategy, trafficLights);
+        }
+        if (simulationTime <= nextOutputTime || phaseCount % phaseStep != 0) {
+            return;
+        }
+        nextOutputTime = simulationTime + sTimestep;
+
+        writePhaseData(simulationTime, phaseCount, strategy, trafficLights);
     }
 
     private void writeData(double simulationTime, String formattedTime, Iterable<TrafficLight> trafficLights) {
@@ -85,6 +108,21 @@ public class FileTrafficLightControllerRecorder extends FileOutputBase implement
         for (TrafficLight trafficLight : trafficLights) {
             writer.printf("%.1f,  %d,  ", trafficLight.position(), trafficLight.status().ordinal());
         }
+        write("%n");
+    }
+
+    private void writePhaseData(double simulationTime, int phaseCount, ControlStrategy strategy,
+            Iterable<TrafficLight> trafficLights) {
+        double delayCostForPhase = 0.0;
+        double stoppingCostForPhase = 0.0;
+        int vehicleApproachCount = 0;
+        for (TrafficLight trafficLight : trafficLights) {
+            delayCostForPhase += trafficLight.delayCostForPhase;
+            stoppingCostForPhase += trafficLight.stoppingCostForPhase;
+            vehicleApproachCount += trafficLight.getVehicleApproaches().size();
+        }
+        writer.printf("%.2f, %d, %d, %.2f, %.2f", simulationTime, phaseCount, vehicleApproachCount, delayCostForPhase,
+                stoppingCostForPhase);
         write("%n");
     }
 
@@ -109,4 +147,10 @@ public class FileTrafficLightControllerRecorder extends FileOutputBase implement
                 " etc.");
         writer.flush();
     }
+
+    private void writePhaseFileHeader(ControlStrategy strategy, Iterable<TrafficLight> trafficLights) {
+        writer.printf(COMMENT_CHAR + " per phase cost output for control strategy: %s %n", strategy.getName());
+        writer.printf(COMMENT_CHAR + "simulationTime, phase count, vehicle approaches, delay cost, stopping cost %n");
+    }
+
 }

@@ -66,9 +66,15 @@ public class TrafficLight {
     
     private Map<Long, Double> approachVehiclesUpdatedAt;
 
-    private double cumulativeStoppingCost;
+    public double cumulativeStoppingCost;
 
-    private double cumulativeDelayCost;
+    public double cumulativeDelayCost;
+
+    public double delayCostForPhase;
+
+    public double stoppingCostForPhase;
+
+    public int vehiclesForPhase;
 
     public TrafficLight(String name, String groupId, TriggerCallback triggerCallback) {
         this.name = name;
@@ -216,10 +222,12 @@ public class TrafficLight {
     }
 
     public void addToCumulativeStoppingCost(double stoppingCost) {
+        stoppingCostForPhase += stoppingCost;
         cumulativeStoppingCost += stoppingCost;
     }
 
     public void addToCumulativeDelayCost(double delayCost) {
+        delayCostForPhase += delayCost;
         cumulativeDelayCost += delayCost;
     }
 
@@ -229,6 +237,12 @@ public class TrafficLight {
 
     public double getCumulativeDelayCost() {
         return cumulativeDelayCost;
+    }
+
+    public void resetPhaseCosts() {
+        delayCostForPhase = 0.0;
+        stoppingCostForPhase = 0.0;
+        vehiclesForPhase = 0;
     }
 
 }

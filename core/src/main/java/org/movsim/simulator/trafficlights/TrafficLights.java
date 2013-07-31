@@ -68,7 +68,8 @@ public class TrafficLights implements SimulationTimeStep {
         setUp(trafficLightsInput, roadNetwork);
         checkIfAllTrafficlightsAreReferenced();
         if (trafficLightsInput.isLogging()) {
-            setUpLogging(trafficLightsInput.getNTimestep());
+            setUpLogging(trafficLightsInput.getNTimestep(), trafficLightsInput.getSTimestep(),
+                    trafficLightsInput.getPhaseStep());
         }
     }
 
@@ -143,9 +144,9 @@ public class TrafficLights implements SimulationTimeStep {
         }
     }
 
-    private void setUpLogging(int nTimestep) {
+    private void setUpLogging(int nTimestep, int sTimestep, int phaseStep) {
         for (TrafficLightControlGroup group : trafficLightControlGroups) {
-            group.setRecorder(new FileTrafficLightControllerRecorder(group, nTimestep));
+            group.setRecorder(new FileTrafficLightControllerRecorder(group, nTimestep, sTimestep, phaseStep));
         }
     }
 

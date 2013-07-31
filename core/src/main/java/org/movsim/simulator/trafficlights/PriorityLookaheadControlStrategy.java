@@ -46,7 +46,7 @@ public class PriorityLookaheadControlStrategy implements ControlStrategy {
         this.trafficLights = trafficLights;
         this.conditionGapTime = strategy.getGap();
         this.conditionRange = strategy.getRange();
-        this.conditionLookahead = 5;
+        this.conditionLookahead = 10;
         this.targetExtendedGreenTime = 0;
     }
 

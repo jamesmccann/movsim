@@ -47,6 +47,8 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
 
     private double cumulativeDelayCost;
 
+    private int phaseCount;
+
     /** mapping from the signal's name to the trafficlight */
     private final Map<String, TrafficLight> trafficLights = new HashMap<>();
 
@@ -54,6 +56,7 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
         Preconditions.checkNotNull(controllerGroup);
         this.groupId = controllerGroup.getId();
         this.firstSignalId = firstSignalId;
+        this.phaseCount = 0;
 
         this.phases = ImmutableList.copyOf(controllerGroup.getPhase()); // deep copy
         createTrafficlights();
@@ -105,10 +108,17 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
         controlStrategy.update(dt);
  
         determinePhase();
-        updatePhase();
+        updatePhase(simulationTime, iterationCount);
         updateTrafficLightApproaches(dt);
         if (recordDataCallback != null) {
-            recordDataCallback.recordData(simulationTime, iterationCount, trafficLights.values());
+            // recordDataCallback.recordData(simulationTime, iterationCount, trafficLights.values());
+        }
+
+        double delay = 0.0;
+        double stop = 0.0;
+        for (TrafficLight trafficLight : trafficLights.values()) {
+            delay += trafficLight.getCumulativeDelayCost();
+            stop += trafficLight.getCumulativeStoppingCost();
         }
     }
 
@@ -118,7 +128,7 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
         }
     }
 
-    public void updatePhase() {
+    public void updatePhase(double simulationTime, long iterationCount) {
         if (nextPhaseIndex == -1) { return; } //no update required
 
         Phase phase = phases.get(currentPhaseIndex);
@@ -137,7 +147,21 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
         // check if a current all red period has finished, go to the next phase
         if (currentAllRedDuration >= phase.getAllRed()) {
             LOG.debug("setting next phase");
-            nextPhase();
+            nextPhase(simulationTime, iterationCount);
+        }
+    }
+
+    public void nextPhase(double simulationTime, long iterationCount) {
+        // before changing, output the current phase
+        recordDataCallback.recordPhase(simulationTime, iterationCount, phaseCount, controlStrategy,
+                trafficLights.values());
+        phaseCount += 1;
+
+        nextPhase();
+
+        // after changing, reset the phase costs for each traffic light
+        for (TrafficLight trafficLight : trafficLights.values()) {
+            trafficLight.resetPhaseCosts();
         }
     }
 
@@ -203,11 +227,11 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
         }
     }
 
-    public void calcPhaseDelayCost(Phase phase) {
-        for (TrafficLightState state : phase.getTrafficLightState()) {
-            // if the state is green now
-        }
-    }
+    // public void calcPhaseDelayCost(Phase phase) {
+    // for (TrafficLightState state : phase.getTrafficLightState()) {
+    // // if the state is green now
+    // }
+    // }
 
     public interface RecordDataCallback {
         /**
@@ -219,6 +243,10 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
          * @param trafficLights
          */
         public void recordData(double simulationTime, long iterationCount, Iterable<TrafficLight> trafficLights);
+
+        public void recordPhase(double simulationTime, long iterationCount, int phaseCount,
+                ControlStrategy controlStrategy,
+                Iterable<TrafficLight> trafficLights);
     }
 
     private RecordDataCallback recordDataCallback;

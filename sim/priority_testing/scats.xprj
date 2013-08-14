@@ -55,7 +55,7 @@
                 <Detectors />
             </Road>
         </Simulation>
-        <TrafficLights logging="true" s_timestep="250">
+        <TrafficLights logging="true" phase_step="1">
             <ControllerGroup id="plan1">
                 <TrafficControlStrategy type="SCATSData" />
                 <Phase duration="0" min="15" max="60" intergreen="6" all_red="2" id="A">

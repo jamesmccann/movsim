@@ -25,6 +25,10 @@
  */
 package org.movsim.simulator.trafficlights;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.movsim.autogen.TrafficLightStatus;
 import org.movsim.input.ProjectMetaData;
 import org.movsim.output.fileoutput.FileOutputBase;
@@ -37,12 +41,15 @@ import com.google.common.base.Preconditions;
 public class FileTrafficLightControllerRecorder extends FileOutputBase implements
         TrafficLightControlGroup.RecordDataCallback {
 
-    private static final String extensionFormat = ".controllerGroup_%s_%s.csv";
+    private static final String extensionFormat = ".controllerGroup%s_%s.csv";
     private final int nTimestep;
     private final int sTimestep;
     private final int phaseStep;
-
     private double nextOutputTime;
+
+    public List<VehicleApproach> totalVehicleApproachesForGroup;
+
+    private TrafficLightControlGroup group;
 
     /**
      * Constructor.
@@ -55,14 +62,14 @@ public class FileTrafficLightControllerRecorder extends FileOutputBase implement
         super(ProjectMetaData.getInstance().getOutputPath(), ProjectMetaData.getInstance().getProjectName());
         Preconditions.checkArgument(!group.groupId().isEmpty());
         Preconditions.checkArgument(!group.firstSignalId().isEmpty());
+        totalVehicleApproachesForGroup = new ArrayList<VehicleApproach>();
+        this.group = group;
         this.nTimestep = nTimestep;
         this.sTimestep = sTimestep;
         this.phaseStep = phaseStep;
         nextOutputTime = nTimestep;
-        String formattedTime = ProjectMetaData.getInstance()
-                .getFormatedTimeWithOffset(System.currentTimeMillis() * 1000).replaceAll("\\s", "");
         String groupName = group.groupId().replaceAll("\\s", "");
-        writer = Preconditions.checkNotNull(createWriter(String.format(extensionFormat, groupName, formattedTime)));
+        writer = Preconditions.checkNotNull(createWriter(String.format(extensionFormat, "Phases", groupName)));
     }
 
     /**
@@ -94,6 +101,7 @@ public class FileTrafficLightControllerRecorder extends FileOutputBase implement
             Iterable<TrafficLight> trafficLights) {
         if (phaseCount == 0) {
             writePhaseFileHeader(strategy, trafficLights);
+            return;
         }
         if (simulationTime <= nextOutputTime || phaseCount % phaseStep != 0) {
             return;
@@ -121,8 +129,20 @@ public class FileTrafficLightControllerRecorder extends FileOutputBase implement
             stoppingCostForPhase += trafficLight.stoppingCostForPhase;
             vehicleApproachCount += trafficLight.getVehicleApproaches().size();
         }
-        writer.printf("%.2f, %d, %d, %.2f, %.2f", simulationTime, phaseCount, vehicleApproachCount, delayCostForPhase,
+        Map<Integer, Double> delayTimePerUrgency = group.getAverageDelayTimePerUrgency();
+        writer.printf("%.2f,%d,%d,%.2f,%.2f,", simulationTime, phaseCount, vehicleApproachCount, delayCostForPhase,
                 stoppingCostForPhase);
+        int i = 0;
+        for (Double delayTime : delayTimePerUrgency.values()) {
+            if (delayTime <= 0) {
+                continue;
+            }
+            writer.printf("%.2f", delayTime);
+            if (i < delayTimePerUrgency.size()-1) {
+                writer.print(",");
+            }
+            i++;
+        }
         write("%n");
     }
 
@@ -150,7 +170,23 @@ public class FileTrafficLightControllerRecorder extends FileOutputBase implement
 
     private void writePhaseFileHeader(ControlStrategy strategy, Iterable<TrafficLight> trafficLights) {
         writer.printf(COMMENT_CHAR + " per phase cost output for control strategy: %s %n", strategy.getName());
-        writer.printf(COMMENT_CHAR + "simulationTime, phase count, vehicle approaches, delay cost, stopping cost %n");
+        writer.printf(COMMENT_CHAR
+                + "simulationTime,phase count,vehicle approaches,delay cost,stopping cost, "
+                + "delay for urgency 1,delay for urgency 2,delay for urgency 3,delay for urgency 4,delay for urgency 5 %n");
+    }
+
+    public void recordVehicleApproach(VehicleApproach approach) {
+        totalVehicleApproachesForGroup.add(approach);
+    }
+
+    @Override
+    public void recordComplete() {
+        System.out.println("COMPLETE");
+        System.out.println("total apporaches " + totalVehicleApproachesForGroup.size());
+        writer = createWriter("test.dat");
+        for (VehicleApproach approach : totalVehicleApproachesForGroup) {
+            writer.printf("vehicle: %s");
+        }
     }
 
 }

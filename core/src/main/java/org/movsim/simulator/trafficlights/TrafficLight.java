@@ -74,6 +74,10 @@ public class TrafficLight {
 
     public double stoppingCostForPhase;
 
+    public Map<Integer, Integer> cumulativeNumberOfVehiclesPerUrgency;
+
+    public Map<Integer, Double> cumulativeDelayTimePerUrgency;
+
     public int vehiclesForPhase;
 
     public TrafficLight(String name, String groupId, TriggerCallback triggerCallback) {
@@ -82,6 +86,12 @@ public class TrafficLight {
         this.triggerCallback = Preconditions.checkNotNull(triggerCallback);
         this.approachVehicles = new HashMap<Long, VehicleApproach>();
         this.approachVehiclesUpdatedAt = new HashMap<Long, Double>();
+        this.cumulativeDelayTimePerUrgency = new HashMap<Integer, Double>();
+        this.cumulativeNumberOfVehiclesPerUrgency = new HashMap<Integer, Integer>();
+        for (int i = 0; i <= 5; i++) {
+            cumulativeDelayTimePerUrgency.put(i, 0.0);
+            cumulativeNumberOfVehiclesPerUrgency.put(i, 0);
+        }
     }
 
     /**
@@ -195,6 +205,9 @@ public class TrafficLight {
             // remove vehicle approach and count delay cost
             VehicleApproach removeApproach = approachVehicles.get(vehId);
             addToCumulativeDelayCost(removeApproach.getDelayCost());
+            addToCumulativeDelayTime(removeApproach.vehicleUrgency, removeApproach.delayTime);
+            addToCumulativeVehicleCount(removeApproach.vehicleUrgency);
+            triggerCallback.recordVehicleApproach(removeApproach);
 
             approachVehicles.remove(vehId);
             approachVehiclesUpdatedAt.remove(vehId);
@@ -231,6 +244,16 @@ public class TrafficLight {
         cumulativeDelayCost += delayCost;
     }
 
+    public void addToCumulativeDelayTime(int urgency, double delayTime) {
+        double currentDelay = cumulativeDelayTimePerUrgency.get(urgency);
+        cumulativeDelayTimePerUrgency.put(urgency, currentDelay + delayTime);
+    }
+
+    public void addToCumulativeVehicleCount(int urgency) {
+        int currentVehicles = cumulativeNumberOfVehiclesPerUrgency.get(urgency);
+        cumulativeNumberOfVehiclesPerUrgency.put(urgency, currentVehicles + 1);
+    }
+
     public double getCumulativeStoppingCost() {
         return cumulativeStoppingCost;
     }
@@ -239,9 +262,21 @@ public class TrafficLight {
         return cumulativeDelayCost;
     }
 
+    public double getCumulativeDelayTime(int urgency) {
+        return cumulativeDelayTimePerUrgency.get(urgency);
+    }
+
+    public int getCumulativeNumberOfVehicles(int urgency) {
+        return cumulativeNumberOfVehiclesPerUrgency.get(urgency);
+    }
+
     public void resetPhaseCosts() {
         delayCostForPhase = 0.0;
         stoppingCostForPhase = 0.0;
+        for (int i = 0; i <= 5; i++) {
+            cumulativeDelayTimePerUrgency.put(i, 0.0);
+            cumulativeNumberOfVehiclesPerUrgency.put(i, 0);
+        }
         vehiclesForPhase = 0;
     }
 

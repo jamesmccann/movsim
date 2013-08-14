@@ -17,4 +17,6 @@ public interface TriggerCallback {
      */
     double getGapTime();
 
+    void recordVehicleApproach(VehicleApproach va);
+
 }

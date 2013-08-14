@@ -531,6 +531,11 @@ public class Simulator implements SimulationTimeStep, SimulationRun.CompletionCa
         LOG.info(String.format(
                 "time elapsed = %.3fs --> simulation time warp = %.2f, time per 1000 update steps=%.3fs", elapsedTime,
                 simulationTime / elapsedTime, 1000 * elapsedTime / simulationRunnable.iterationCount()));
+
+        // trigger all traffic light control groups to write summary data
+        for (TrafficLightControlGroup tlcg : trafficLights.getTrafficLightControlGroups()) {
+            tlcg.recordComplete();
+        }
     }
 
     @Override

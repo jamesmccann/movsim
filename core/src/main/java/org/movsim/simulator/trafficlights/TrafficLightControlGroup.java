@@ -113,13 +113,6 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
         if (recordDataCallback != null) {
             // recordDataCallback.recordData(simulationTime, iterationCount, trafficLights.values());
         }
-
-        double delay = 0.0;
-        double stop = 0.0;
-        for (TrafficLight trafficLight : trafficLights.values()) {
-            delay += trafficLight.getCumulativeDelayCost();
-            stop += trafficLight.getCumulativeStoppingCost();
-        }
     }
 
     private void determinePhase() {
@@ -227,12 +220,6 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
         }
     }
 
-    // public void calcPhaseDelayCost(Phase phase) {
-    // for (TrafficLightState state : phase.getTrafficLightState()) {
-    // // if the state is green now
-    // }
-    // }
-
     public interface RecordDataCallback {
         /**
          * Callback to allow the application to process or record the traffic light data.
@@ -242,11 +229,14 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
          * @param iterationCount
          * @param trafficLights
          */
+        public void recordVehicleApproach(VehicleApproach approach);
         public void recordData(double simulationTime, long iterationCount, Iterable<TrafficLight> trafficLights);
 
         public void recordPhase(double simulationTime, long iterationCount, int phaseCount,
                 ControlStrategy controlStrategy,
                 Iterable<TrafficLight> trafficLights);
+
+        public void recordComplete();
     }
 
     private RecordDataCallback recordDataCallback;
@@ -323,5 +313,58 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
             cumulativeDelayCost += trafficLight.getCumulativeDelayCost();
         }
         return cumulativeDelayCost;
+    }
+
+    public Map<Integer, Double> getCumulativeDelayTimesPerUrgency() {
+        Map<Integer, Double> delayTimesPerUrgency = new HashMap<Integer, Double>();
+        for (int i = 1; i <= 5; i++) {
+            delayTimesPerUrgency.put(i, 0.0);
+        }
+
+        for (TrafficLight trafficLight : trafficLights.values()) {
+            for (int i = 1; i <= 5; i++) {
+                delayTimesPerUrgency.put(i, delayTimesPerUrgency.get(i) + trafficLight.getCumulativeDelayTime(i));
+            }
+        }
+        return delayTimesPerUrgency;
+    }
+
+    public Map<Integer, Integer> getCumulativeNumberOfVehiclesPerUrgency() {
+        Map<Integer, Integer> vehiclesPerUrgency = new HashMap<Integer, Integer>();
+        for (int i = 1; i <= 5; i++) {
+            vehiclesPerUrgency.put(i, 0);
+        }
+
+        for (TrafficLight trafficLight : trafficLights.values()) {
+            for (int i = 1; i <= 5; i++) {
+                vehiclesPerUrgency.put(i, vehiclesPerUrgency.get(i) + trafficLight.getCumulativeNumberOfVehicles(i));
+            }
+        }
+        return vehiclesPerUrgency;
+    }
+
+    public Map<Integer, Double> getAverageDelayTimePerUrgency() {
+        Map<Integer, Integer> vehiclesPerUrgency = getCumulativeNumberOfVehiclesPerUrgency();
+        Map<Integer, Double> delayTimesPerUrgency = getCumulativeDelayTimesPerUrgency();
+        Map<Integer, Double> avgDelayTimesPerUrgency = new HashMap<Integer, Double>();
+
+        for (int i = 1; i <= 5; i++) {
+            if (vehiclesPerUrgency.get(i) > 0) {
+                double avgDelayTime = delayTimesPerUrgency.get(i) / (1.0 * vehiclesPerUrgency.get(i));
+                avgDelayTimesPerUrgency.put(i, avgDelayTime);
+            } else {
+                avgDelayTimesPerUrgency.put(i, 0.0);
+            }
+        }
+        return avgDelayTimesPerUrgency;
+    }
+
+    @Override
+    public void recordVehicleApproach(VehicleApproach va) {
+        recordDataCallback.recordVehicleApproach(va);
+    }
+
+    public void recordComplete() {
+        recordDataCallback.recordComplete();
     }
 }

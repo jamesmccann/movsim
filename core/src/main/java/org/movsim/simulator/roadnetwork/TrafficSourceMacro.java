@@ -90,8 +90,9 @@ public class TrafficSourceMacro extends AbstractTrafficSource {
 
         if (scatsFileReader != null && currentInflowDuration >= targetInflowDuration) {
             updateInflow();
+            return;
         }
-        calcApproximateInflow(dt);
+        // calcApproximateInflow(dt);
 
         // System.out.println("Source " + id + ", nextArrival: " + nextArrivalInterval);
         if ((scatsFileReader != null && nWait >= nextArrivalInterval && vehiclesEnteredThisInflow < targetVehiclesThisInflow)
@@ -272,13 +273,14 @@ public class TrafficSourceMacro extends AbstractTrafficSource {
     public void updateInflow() {
         // set inflow to 0 and wait for new inflow
         // so we don't add any extra cars when while we are waiting
-        this.totalInflowOverride = 0;
         scatsFileReader.updateInflow();
     }
 
     public void setInflow(double inflow, int vehicles, double duration) {
         // compensate if we are above or below the target vehicles
         vehiclesWaiting += (targetVehiclesThisInflow - vehiclesEnteredThisInflow);
+        totalVehiclesEntered += (targetVehiclesThisInflow - vehiclesEnteredThisInflow);
+
         System.out.println("Source updating, target: " + targetVehiclesThisInflow + ", actual: "
                 + vehiclesEnteredThisInflow + ", total entered: " + totalVehiclesEntered + ", total target: "
                 + totalTargetVehicles + ", waiting vehicles: " + vehiclesWaiting);

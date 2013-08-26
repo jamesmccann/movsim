@@ -20,7 +20,7 @@
         </VehiclePrototypeConfiguration>
     </VehiclePrototypes>
     <Scenario network_filename="four_way_junction.xodr">
-        <Simulation timestep="0.2" duration="54000" crash_exit="false">
+        <Simulation timestep="0.2" duration="48600" crash_exit="false">
             <TrafficComposition>
                 <VehicleType label="IDM1" fraction="0.8" relative_v0_randomization="0.2" />
                 <VehicleType label="IDM2" fraction="0.2" relative_v0_randomization="0.2" />

@@ -95,10 +95,6 @@ public class SCATSFileReader {
             if (currentCycle == null) {
                 // end of file reacehd
                 eof = true;
-                for (Map.Entry<String, Integer> approachInflow : lastCycle.approachInflows.entrySet()) {
-                    TrafficSourceMacro source = trafficSources.get(approachInflow.getKey());
-                    source.setInflow(0, 0, 0);
-                }
                 return false;
             }
 
@@ -119,11 +115,20 @@ public class SCATSFileReader {
     public void updateInflow() {
         // if no scats then we need to manually call to get the next cycle
         if (controlStrategy == null) {
-            if (!update()) return;
+            if (!update()) {
+                zeroInflows();
+                return;
+            }
         }
 
         // if there is SCATS, let the traffic light controller request a new cycle first
-        else if (currentCycle == lastInflowUpdateCycle || currentCycle == null) {
+        else if (currentCycle == lastInflowUpdateCycle) {
+            return;
+        }
+
+        // zero inflows if we have reached eof
+        else if (currentCycle == null) {
+            // zeroInflows();
             return;
         }
 
@@ -206,6 +211,13 @@ public class SCATSFileReader {
     
     public static String getData(String data, int i, int j) {
         return data.substring(i, j).trim();
+    }
+
+    public void zeroInflows() {
+        for (Map.Entry<String, Integer> approachInflow : lastCycle.approachInflows.entrySet()) {
+            TrafficSourceMacro source = trafficSources.get(approachInflow.getKey());
+            source.setInflow(0, 0, 0);
+        }
     }
 
     private static final class Cycle {

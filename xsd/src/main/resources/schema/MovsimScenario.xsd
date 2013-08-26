@@ -453,7 +453,7 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element ref="TrafficComposition" />
-                <xs:element ref="SCATSDataFile" />
+                <xs:element ref="SCATSDataFile" minOccurs="0" maxOccurs="1" />
                 <xs:element ref="Road" minOccurs="0" maxOccurs="unbounded" />
             </xs:sequence>
             <xs:attribute name="timestep" type="positiveDouble" use="required" />

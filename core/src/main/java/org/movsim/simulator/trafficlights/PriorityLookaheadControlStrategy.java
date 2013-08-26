@@ -87,7 +87,7 @@ public class PriorityLookaheadControlStrategy implements ControlStrategy {
     }
 
     public void determineTargetExtendedGreenTime() {
-        System.out.println("Determining target extended green time");
+        // System.out.println("Determining target extended green time");
         // step a second at a time from now to the lookahead range
         // for each step: calculate the overall cost of switching phases
         // and compare to the cost of switching phases at the request time
@@ -105,7 +105,7 @@ public class PriorityLookaheadControlStrategy implements ControlStrategy {
                     }
                 }
             }
-            System.out.println("Estimated cost for lookahead " + currentLookahead + ": " + currentCost);
+            // System.out.println("Estimated cost for lookahead " + currentLookahead + ": " + currentCost);
 
             if (currentCost < minCost) {
                 minCost = currentCost;
@@ -114,7 +114,7 @@ public class PriorityLookaheadControlStrategy implements ControlStrategy {
         }
 
         this.targetExtendedGreenTime = minLookahead;
-        System.out.println("Optimal lookahead for current phase: " + minLookahead);
+        // System.out.println("Optimal lookahead for current phase: " + minLookahead);
     }
 
     private int highestPriorityPhase() {

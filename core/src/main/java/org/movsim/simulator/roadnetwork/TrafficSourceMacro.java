@@ -47,7 +47,22 @@ public class TrafficSourceMacro extends AbstractTrafficSource {
 
     private int vehiclesWaiting;
 
+    private int vehiclesEnteredThisInflow;
+
+    private int targetVehiclesThisInflow;
+
+    private int totalVehiclesEntered;
+
+    private int totalTargetVehicles;
+
     private double totalInflowOverride = -1;
+    
+    private double targetInflowDuration;
+
+    private double currentInflowDuration;
+
+    private SCATSFileReader scatsFileReader;
+
 
     /**
      * Instantiates a new upstream boundary .
@@ -70,9 +85,31 @@ public class TrafficSourceMacro extends AbstractTrafficSource {
         } else {
             totalInflow = (getTotalInflow(simulationTime));
         }
-        nWait += dt;
+        nWait += dt; // totalInflow * dt;
+        currentInflowDuration += dt;
 
+        if (scatsFileReader != null && currentInflowDuration >= targetInflowDuration) {
+            updateInflow();
+        }
         calcApproximateInflow(dt);
+
+        // System.out.println("Source " + id + ", nextArrival: " + nextArrivalInterval);
+        if ((scatsFileReader != null && nWait >= nextArrivalInterval && vehiclesEnteredThisInflow < targetVehiclesThisInflow)
+                || (scatsFileReader == null && nWait >= nextArrivalInterval)) {
+            nWait = 0;
+            vehiclesEnteredThisInflow += 1;
+            totalVehiclesEntered += 1;
+            nextArrivalInterval = getPoissonInterarrivalDelay(totalInflow);
+            boolean isEntered = insertAtInflow(totalInflow, simulationTime);
+            if (isEntered) {
+                // nWait -= 1;
+                // return; // only one insert per simulation update
+            } else {
+                // haven't entered a vehicle, add to wait queue
+                addWaitingVehicle();
+            }
+            return;
+        }
 
         if (vehiclesWaiting > 0) {
             boolean isEntered = insertAtInflow(totalInflow, simulationTime);
@@ -80,19 +117,6 @@ public class TrafficSourceMacro extends AbstractTrafficSource {
                 removeWaitingVehicle();
                 return; // only one insert per simulation update
             }
-        }
-
-        // System.out.println("Source " + id + ", nextArrival: " + nextArrivalInterval);
-        if (nWait >= nextArrivalInterval) {
-            nWait = 0;
-            nextArrivalInterval = getPoissonInterarrivalDelay(totalInflow);
-            boolean isEntered = insertAtInflow(totalInflow, simulationTime);
-            if (isEntered) {
-                return; // only one insert per simulation update
-            }
-
-            // haven't entered a vehicle, add to wait queue
-            // addWaitingVehicle();
         }
     }
     
@@ -245,10 +269,32 @@ public class TrafficSourceMacro extends AbstractTrafficSource {
         return vehiclesWaiting;
     }
 
-    public void setInflow(double inflow) {
+    public void updateInflow() {
+        // set inflow to 0 and wait for new inflow
+        // so we don't add any extra cars when while we are waiting
+        this.totalInflowOverride = 0;
+        scatsFileReader.updateInflow();
+    }
+
+    public void setInflow(double inflow, int vehicles, double duration) {
+        // compensate if we are above or below the target vehicles
+        vehiclesWaiting += (targetVehiclesThisInflow - vehiclesEnteredThisInflow);
+        System.out.println("Source updating, target: " + targetVehiclesThisInflow + ", actual: "
+                + vehiclesEnteredThisInflow + ", total entered: " + totalVehiclesEntered + ", total target: "
+                + totalTargetVehicles + ", waiting vehicles: " + vehiclesWaiting);
+
+        totalTargetVehicles += vehicles;
+        vehiclesEnteredThisInflow = 0;
+        currentInflowDuration = 0;
+        targetInflowDuration = duration;
+        targetVehiclesThisInflow = vehicles;
         this.totalInflowOverride = inflow;
         // reset next arrival
         nextArrivalInterval = getPoissonInterarrivalDelay(inflow);
+    }
+
+    public void setSCATSFileReader(SCATSFileReader s) {
+        scatsFileReader = s;
     }
 
 }

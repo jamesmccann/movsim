@@ -37,8 +37,14 @@ public class SCATSFileReader {
     
     private Cycle lastCycle;
 
+    private Cycle lastInflowUpdateCycle;
+
     private boolean eof;
     
+    private Cycle currentCycle;
+
+    private int numVehiclesInFile;
+
     /**
      * Some SCATS data files contain information for multiple intersections
      * in a subsystem. The intersectionId is a string representing the identifier
@@ -71,6 +77,7 @@ public class SCATSFileReader {
         
         for (AbstractTrafficSource trafficSource : simulator.getRoadNetwork().getTrafficSources()) {
             TrafficSourceMacro source = (TrafficSourceMacro)trafficSource;
+            source.setSCATSFileReader(this);
             trafficSources.put(source.getId(), source);
         }
     }
@@ -84,32 +91,23 @@ public class SCATSFileReader {
             return false;
         }
         try {
-            Cycle nextCycle = parseNextCycle();
-            if (nextCycle == null) {
+            currentCycle = parseNextCycle();
+            if (currentCycle == null) {
                 // end of file reacehd
                 eof = true;
                 for (Map.Entry<String, Integer> approachInflow : lastCycle.approachInflows.entrySet()) {
                     TrafficSourceMacro source = trafficSources.get(approachInflow.getKey());
-                    source.setInflow(0);
+                    source.setInflow(0, 0, 0);
                 }
                 return false;
             }
 
             if (controlStrategy != null) {
-                controlStrategy.targetCycleDuration = nextCycle.cycleDuration;
-                controlStrategy.targetPhaseDurations = nextCycle.phaseDurations;
+                controlStrategy.targetCycleDuration = currentCycle.cycleDuration;
+                controlStrategy.targetPhaseDurations = currentCycle.phaseDurations;
             }
 
-            for (Map.Entry<String, Integer> approachInflow : nextCycle.approachInflows.entrySet()) {
-                TrafficSourceMacro source = trafficSources.get(approachInflow.getKey());
-                int numVehicles = approachInflow.getValue();
-                double inflow = numVehicles / (1.0 * nextCycle.cycleDuration);
-                System.out.println("Approach " + approachInflow.getKey() + ", vehicles: " + numVehicles + ", inflow: "
-                        + inflow);
-                source.setInflow(inflow);
-            }
-
-            lastCycle = nextCycle;
+            lastCycle = currentCycle;
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Exception reading scats data");
@@ -118,6 +116,28 @@ public class SCATSFileReader {
         return true;
     }
     
+    public void updateInflow() {
+        // if no scats then we need to manually call to get the next cycle
+        if (controlStrategy == null) {
+            if (!update()) return;
+        }
+
+        // if there is SCATS, let the traffic light controller request a new cycle first
+        else if (currentCycle == lastInflowUpdateCycle || currentCycle == null) {
+            return;
+        }
+
+        for (Map.Entry<String, Integer> approachInflow : currentCycle.approachInflows.entrySet()) {
+            TrafficSourceMacro source = trafficSources.get(approachInflow.getKey());
+            int numVehicles = approachInflow.getValue();
+            double inflow = numVehicles / (1.0 * currentCycle.cycleDuration);
+            System.out.println("Approach " + approachInflow.getKey() + ", vehicles: " + numVehicles + ", inflow: "
+                    + inflow);
+            source.setInflow(inflow, numVehicles, currentCycle.cycleDuration);
+        }
+        lastInflowUpdateCycle = currentCycle;
+    }
+
     public Cycle parseNextCycle() throws IOException {
         Cycle cycle = new Cycle();
 
@@ -127,11 +147,11 @@ public class SCATSFileReader {
         if (data == null) {
             return null;
         }
-        cycle.cycleDuration = Integer.parseInt(getData(data, 56, 59));
 
-        if (cycle.cycleDuration == 0) {
-            throw new IOException();
-        }
+        // cycle.cycleDuration = Integer.parseInt(getData(data, 56, 59));
+        // if (cycle.cycleDuration == 0) {
+        // throw new IOException();
+        // }
 
         // next line is column headers, skip it
         // Int SA/LK PH PT! DS VO VK! DS VO VK! DS VO VK! DS VO VK! ADS
@@ -159,6 +179,7 @@ public class SCATSFileReader {
             Integer phaseTime = Integer.parseInt(getData(data, 20, 22));
             if (phaseTime > 0) { // don't add 0 approaches
                 cycle.phaseDurations.put(phaseId, phaseTime);
+                cycle.cycleDuration += phaseTime;
             }
 
             String approachId = getData(data, 9, 11);
@@ -168,8 +189,10 @@ public class SCATSFileReader {
             try {
                 Integer apc = Integer.parseInt(getData(data, 29, 31));
                 approachCount += apc;
+                numVehiclesInFile += apc;
                 apc = Integer.parseInt(getData(data, 42, 44));
                 approachCount += apc;
+                numVehiclesInFile += apc;
             } catch (Exception e) { }
 
             cycle.approachInflows.put(approachId, approachCount);
@@ -177,7 +200,7 @@ public class SCATSFileReader {
 
         // next line is the calculated allocation of the cycle
         // A=<64> B=36
-
+        System.out.println("number of vehicles" + numVehiclesInFile);
         return cycle;
     }
     

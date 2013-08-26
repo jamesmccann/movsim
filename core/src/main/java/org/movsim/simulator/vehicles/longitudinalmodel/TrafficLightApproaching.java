@@ -234,17 +234,26 @@ public class TrafficLightApproaching {
 
     private void updateAndBroadcastApproach(Vehicle veh, TrafficLight trafficLight) {
         VehiclePriority p = veh.getPriority();
-        VehicleApproach approach = new VehicleApproach(veh.getVehicleClass().getWeight(), veh.getAcc(), veh.getSpeed(),
+        long vehicleId = veh.getId();
+        VehicleApproach approach = new VehicleApproach(
+                vehicleId, 
+                veh.getVehicleClass().getWeight(), 
+                veh.getAcc(),
+                veh.getSpeed(),
                 p.getUrgency(),
-                veh.getInstantaneousCost(), controlledDelayTime, p.getNumberOfPassengers(), distanceToTrafficlight,
-                veh.getVehicleClass());
+                veh.getInstantaneousCost(), 
+                controlledDelayTime, 
+                p.getNumberOfPassengers(), 
+                distanceToTrafficlight,
+                veh.getVehicleClass()
+        );
         
         if (!stoppingCostBroadcast && incurredStoppingCost != 0) {
             stoppingCostBroadcast = true;
             approach.incurredStoppingCost = incurredStoppingCost;
         }
 
-        long vehicleId = veh.getId();
+
 
         // clear old approach and add new one
         trafficLight.removeVehicleApproach(vehicleId);

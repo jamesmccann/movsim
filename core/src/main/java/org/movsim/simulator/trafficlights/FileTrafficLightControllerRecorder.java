@@ -26,6 +26,7 @@
 package org.movsim.simulator.trafficlights;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -183,10 +184,24 @@ public class FileTrafficLightControllerRecorder extends FileOutputBase implement
     public void recordComplete() {
         System.out.println("COMPLETE");
         System.out.println("total apporaches " + totalVehicleApproachesForGroup.size());
-        writer = createWriter("test.dat");
-        for (VehicleApproach approach : totalVehicleApproachesForGroup) {
-            writer.printf("vehicle: %s");
+        writer = createWriter("approaches_" + group.controlStrategy.getName() + ".txt");
+        Map<Integer, List<VehicleApproach>> vehicleApproachPerUrgency = new HashMap<Integer, List<VehicleApproach>>();
+        for (int i = 1; i <= 5; i++) { vehicleApproachPerUrgency.put(i, new ArrayList<VehicleApproach>()); }
+        for (VehicleApproach va: totalVehicleApproachesForGroup) { vehicleApproachPerUrgency.get(va.vehicleUrgency).add(va); }
+        for (int i = 1; i <= 5; i++) {
+            List<VehicleApproach> approaches = vehicleApproachPerUrgency.get(i);
+            int count = approaches.size();
+            double delayTime = 0.0;
+            for (VehicleApproach approach : approaches) {
+                delayTime += approach.delayTime;
+            }
+            delayTime /= (1.0 * count);
+            writer.printf("%d, %d, %.2f %n", i, count, delayTime);
         }
+        
+        writer.printf("total approaches: %d %n", totalVehicleApproachesForGroup.size());
+        writer.flush();
+        writer.close();
     }
 
 }

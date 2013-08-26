@@ -5,6 +5,8 @@ import org.movsim.simulator.vehicles.VehicleConsumption;
 
 public class VehicleApproach {
 
+    public final long vehId;
+
     public final double vehicleMass;
 
     public final double vehicleAcceleration;
@@ -30,8 +32,10 @@ public class VehicleApproach {
 
     public double incurredStoppingCost;
 
-    public VehicleApproach(double mass, double acceleration, double speed, int urgency, double costOfStopping,
+    public VehicleApproach(long vehId, double mass, double acceleration, double speed, int urgency,
+            double costOfStopping,
             double delayTime, int NoOfPassengers, double distance, VehicleClass vehicleClass) {
+        this.vehId = vehId;
         this.vehicleMass = mass;
         this.vehicleAcceleration = acceleration;
         this.vehicleSpeed = speed;

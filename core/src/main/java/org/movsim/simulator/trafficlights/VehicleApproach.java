@@ -53,7 +53,7 @@ public class VehicleApproach {
 
     public double delayCost(double delayTime) {
         // $26/hr
-        return 0.007 * delayTime * vehicleUrgency;
+        return 0.007 * delayTime * (vehicleUrgency * 2);
     }
 
     public double estimatedClearTime() {

@@ -188,15 +188,21 @@ public class FileTrafficLightControllerRecorder extends FileOutputBase implement
         Map<Integer, List<VehicleApproach>> vehicleApproachPerUrgency = new HashMap<Integer, List<VehicleApproach>>();
         for (int i = 1; i <= 5; i++) { vehicleApproachPerUrgency.put(i, new ArrayList<VehicleApproach>()); }
         for (VehicleApproach va: totalVehicleApproachesForGroup) { vehicleApproachPerUrgency.get(va.vehicleUrgency).add(va); }
+
         for (int i = 1; i <= 5; i++) {
             List<VehicleApproach> approaches = vehicleApproachPerUrgency.get(i);
             int count = approaches.size();
             double delayTime = 0.0;
+            double delayCost = 0.0;
+            double stoppingCost = 0.0;
             for (VehicleApproach approach : approaches) {
                 delayTime += approach.delayTime;
+                delayCost += approach.getDelayCost();
             }
             delayTime /= (1.0 * count);
-            writer.printf("%d, %d, %.2f %n", i, count, delayTime);
+            delayCost /= (1.0 * count);
+
+            writer.printf("%d, %d, %.2f, %.2f %n", i, count, delayTime, delayCost);
         }
         
         writer.printf("total approaches: %d %n", totalVehicleApproachesForGroup.size());

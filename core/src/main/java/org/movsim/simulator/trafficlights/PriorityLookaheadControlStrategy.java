@@ -99,7 +99,7 @@ public class PriorityLookaheadControlStrategy implements ControlStrategy {
             double currentCost = 0.0;
             for (TrafficLight trafficLight : trafficLights.values()) {
                 for (VehicleApproach vehicleApproach : trafficLight.getVehicleApproaches()) {
-                    if (vehicleApproach.estimatedClearTime() > currentLookahead) {
+                    if (!vehicleApproach.estimatedClearanceWithinTime(currentLookahead)) {
                         currentCost += vehicleApproach.estimatedDelayCost(currentLookahead);
                         currentCost += vehicleApproach.estimatedStoppingCost(currentLookahead);
                     }

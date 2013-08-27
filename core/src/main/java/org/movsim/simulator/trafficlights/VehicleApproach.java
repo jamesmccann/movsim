@@ -32,6 +32,8 @@ public class VehicleApproach {
 
     public double incurredStoppingCost;
 
+    public static EstimatedClearDistances estimatedClearDistances = new EstimatedClearDistances();
+
     public VehicleApproach(long vehId, double mass, double acceleration, double speed, int urgency,
             double costOfStopping,
             double delayTime, int NoOfPassengers, double distance, VehicleClass vehicleClass) {
@@ -56,11 +58,15 @@ public class VehicleApproach {
         return 0.007 * delayTime * (vehicleUrgency * 2);
     }
 
-    public double estimatedClearTime() {
+    public boolean estimatedClearanceWithinTime(int s) {
         // estimates the time in seconds it will take for this vehicle to
         // pass the stop line of the traffic light, based on current speed
         // and distance to traffic light
-        return (distanceToTrafficLight / vehicleSpeed);
+        if (vehicleSpeed < 0.5 && estimatedClearDistances.get(s) != null) {
+            // speed is too low to get an accurate calculation
+            return (distanceToTrafficLight < estimatedClearDistances.get(s));
+        }
+        return (distanceToTrafficLight / vehicleSpeed) < s;
     }
 
     public double estimatedStoppingCost(double timeStep) {

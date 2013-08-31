@@ -46,7 +46,7 @@ public class PriorityLookaheadControlStrategy implements ControlStrategy {
         this.trafficLights = trafficLights;
         this.conditionGapTime = strategy.getGap();
         this.conditionRange = strategy.getRange();
-        this.conditionLookahead = 10;
+        this.conditionLookahead = 15;
         this.targetExtendedGreenTime = 0;
     }
 
@@ -96,16 +96,35 @@ public class PriorityLookaheadControlStrategy implements ControlStrategy {
         double minCost = Double.MAX_VALUE;
         int minLookahead = 0;
         for (int currentLookahead = 0; currentLookahead <= this.conditionLookahead; currentLookahead += 1) {
-            double currentCost = 0.0;
+            double currentStoppingCost = 0.0;
+            double currentDelayCost = 0.0;
+            double stoppedVehiclesCounted = 0;
+            double estimatedDelayCost = 0.0;
             for (TrafficLight trafficLight : trafficLights.values()) {
                 for (VehicleApproach vehicleApproach : trafficLight.getVehicleApproaches()) {
-                    if (!vehicleApproach.estimatedClearanceWithinTime(currentLookahead)) {
-                        currentCost += vehicleApproach.estimatedDelayCost(currentLookahead);
-                        currentCost += vehicleApproach.estimatedStoppingCost(currentLookahead);
+                    if (trafficLight.status() == TrafficLightStatus.GREEN) {
+                        if (!vehicleApproach.estimatedClearanceWithinTime(currentLookahead)) {
+                            stoppedVehiclesCounted += 1;
+                            // estimate the stopping cost + minimum time this vehicle can be delayed
+                            // i.e. minimum length of next phase
+                            currentStoppingCost += vehicleApproach.estimatedStoppingCost(currentLookahead);
+                            currentDelayCost += vehicleApproach.delayCost(phases.get(nextPhaseIndex).getMin());
+                            estimatedDelayCost += vehicleApproach.delayCost(phases.get(nextPhaseIndex)
+                                    .getMin());
+                        }
+                    } else if (trafficLight.status() == TrafficLightStatus.RED) {
+                        currentDelayCost += vehicleApproach.estimatedDelayCost(currentLookahead);
+                        currentStoppingCost += vehicleApproach.estimatedStoppingCost(currentLookahead);
                     }
                 }
             }
-            // System.out.println("Estimated cost for lookahead " + currentLookahead + ": " + currentCost);
+            System.out
+                    .printf("Estimated lookahead %d, stop cost: %.2f, estimated delay cost: %.2f, "
+                    + "est. stp veh delay for min: %.2f, stop vehicles counted %.2f %n",
+                            currentLookahead, currentStoppingCost, currentDelayCost, estimatedDelayCost,
+                            stoppedVehiclesCounted);
+
+            double currentCost = currentStoppingCost + currentDelayCost;
 
             if (currentCost < minCost) {
                 minCost = currentCost;
@@ -114,7 +133,7 @@ public class PriorityLookaheadControlStrategy implements ControlStrategy {
         }
 
         this.targetExtendedGreenTime = minLookahead;
-        // System.out.println("Optimal lookahead for current phase: " + minLookahead);
+        System.out.println("Optimal lookahead for current phase: " + minLookahead);
     }
 
     private int highestPriorityPhase() {
@@ -152,7 +171,8 @@ public class PriorityLookaheadControlStrategy implements ControlStrategy {
             // look for approaches that will be made green by this phase
             // (but are currently red)
             if (state.getStatus() == TrafficLightStatus.GREEN) {
-                currentApproachStoppingCost += trafficLights.get(state.getName()).getApproachCost();
+                currentApproachStoppingCost += trafficLights.get(state.getName())
+                        .getApproachCost(currentPhase.getMin());
             }
         }
         if (currentApproachStoppingCost < highestApproachCost) {

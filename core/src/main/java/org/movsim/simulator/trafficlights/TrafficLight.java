@@ -218,10 +218,13 @@ public class TrafficLight {
         return approachVehicles.values();
     }
 
-    public double getApproachCost() {
+    public double getApproachCost(double s) {
         double result = 0.0;
         for (VehicleApproach approach : approachVehicles.values()) {
+            // the approach cost is the cost of stopping
+            // plus the minimum expected delay, given by s
             result += approach.costOfStopping;
+            result += approach.delayCost(s);
         }
         return result;
     }
@@ -230,6 +233,7 @@ public class TrafficLight {
         double result = 0.0;
         for (VehicleApproach approach : approachVehicles.values()) {
             result += approach.getDelayCost();
+
         }
         return result;
     }

@@ -277,7 +277,7 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
     public double getTotalStoppingCost() {
         double totalCost = 0.0;
         for (TrafficLight trafficLight : trafficLights.values()) {
-            totalCost += trafficLight.getApproachCost();
+            totalCost += trafficLight.getApproachCost(0);
         }
         return totalCost;
     }
@@ -294,7 +294,7 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
         double totalCost = 0.0;
         for (TrafficLight trafficLight : trafficLights.values()) {
             totalCost += trafficLight.getDelayCost();
-            totalCost += trafficLight.getApproachCost();
+            totalCost += trafficLight.getApproachCost(0);
         }
         return totalCost;
     }

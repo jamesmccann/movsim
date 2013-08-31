@@ -55,14 +55,14 @@ public class VehicleApproach {
 
     public double delayCost(double delayTime) {
         // $26/hr
-        return 0.007 * delayTime * (vehicleUrgency * 2);
+        return 0.007 * delayTime * (Math.pow(vehicleUrgency, 1.25));
     }
 
     public boolean estimatedClearanceWithinTime(int s) {
         // estimates the time in seconds it will take for this vehicle to
         // pass the stop line of the traffic light, based on current speed
         // and distance to traffic light
-        if (vehicleSpeed < 0.5 && estimatedClearDistances.get(s) != null) {
+        if (vehicleSpeed < 2.5 && estimatedClearDistances.get(s) != null) {
             // speed is too low to get an accurate calculation
             return (distanceToTrafficLight < estimatedClearDistances.get(s));
         }
@@ -81,7 +81,9 @@ public class VehicleApproach {
     public double estimatedDelayCost(double timeStep) {
         // estimates the accumulated cost of delay after the given timestep
         // this required to car to be stopped, otherwise 0 delay is estimated
-        if (vehicleSpeed > 0.005) { return 0.0; }
+        if (vehicleSpeed > 0.5) {
+            return 0.0;
+        }
         double estimatedDelay = delayTime + timeStep;
         return delayCost(estimatedDelay);
     }

@@ -54,8 +54,9 @@ public class VehicleApproach {
     }
 
     public double delayCost(double delayTime) {
-        // $26/hr
-        return 0.007 * delayTime * (Math.pow(vehicleUrgency, 1.25));
+        // $26/hr === urgency of 3
+        // c = t^1.25u * 0.007
+        return Math.pow(delayTime, (1.25)) * 0.007 * (vehicleUrgency / 3.0);
     }
 
     public boolean estimatedClearanceWithinTime(int s) {

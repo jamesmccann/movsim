@@ -111,7 +111,7 @@ public class PriorityActuatedControlStrategy implements ControlStrategy {
             // look for approaches that will be made green by this phase
             // (but are currently red)
             if (state.getStatus() == TrafficLightStatus.GREEN) {
-                currentApproachStoppingCost += trafficLights.get(state.getName()).getApproachCost();
+                currentApproachStoppingCost += trafficLights.get(state.getName()).getApproachCost(0);
             }
         }
         if (currentApproachStoppingCost < highestApproachCost) {

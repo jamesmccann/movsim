@@ -136,8 +136,8 @@ public class SCATSFileReader {
             TrafficSourceMacro source = trafficSources.get(approachInflow.getKey());
             int numVehicles = approachInflow.getValue();
             double inflow = numVehicles / (1.0 * currentCycle.cycleDuration);
-            System.out.println("Approach " + approachInflow.getKey() + ", vehicles: " + numVehicles + ", inflow: "
-                    + inflow);
+            // System.out.println("Approach " + approachInflow.getKey() + ", vehicles: " + numVehicles + ", inflow: "
+            // + inflow);
             source.setInflow(inflow, numVehicles, currentCycle.cycleDuration);
         }
         lastInflowUpdateCycle = currentCycle;
@@ -205,7 +205,6 @@ public class SCATSFileReader {
 
         // next line is the calculated allocation of the cycle
         // A=<64> B=36
-        System.out.println("number of vehicles" + numVehiclesInFile);
         return cycle;
     }
     

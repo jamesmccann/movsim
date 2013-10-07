@@ -118,11 +118,11 @@ public class PriorityLookaheadControlStrategy implements ControlStrategy {
                     }
                 }
             }
-            System.out
-                    .printf("Estimated lookahead %d, stop cost: %.2f, estimated delay cost: %.2f, "
-                    + "est. stp veh delay for min: %.2f, stop vehicles counted %.2f %n",
-                            currentLookahead, currentStoppingCost, currentDelayCost, estimatedDelayCost,
-                            stoppedVehiclesCounted);
+            // System.out
+            // .printf("Estimated lookahead %d, stop cost: %.2f, estimated delay cost: %.2f, "
+            // + "est. stp veh delay for min: %.2f, stop vehicles counted %.2f %n",
+            // currentLookahead, currentStoppingCost, currentDelayCost, estimatedDelayCost,
+            // stoppedVehiclesCounted);
 
             double currentCost = currentStoppingCost + currentDelayCost;
 

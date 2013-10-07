@@ -39,6 +39,12 @@ public class TrafficSourceMacro extends AbstractTrafficSource {
     /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(TrafficSourceMacro.class);
     
+    private static final int logInterval = 600;
+    
+    private double logIntervalDuration = 0;
+
+    private int logIntervalVehiclesEntered = 0;
+
     private final InflowTimeSeries inflowTimeSeries;
 
     private TestVehicle testVehicle;
@@ -87,6 +93,13 @@ public class TrafficSourceMacro extends AbstractTrafficSource {
         }
         nWait += dt; // totalInflow * dt;
         currentInflowDuration += dt;
+        logIntervalDuration += dt;
+        
+        if (logIntervalDuration >= logInterval) {
+            recordTimeData(this.id, simulationTime, logIntervalVehiclesEntered);
+            logIntervalDuration = 0;
+            logIntervalVehiclesEntered = 0;
+        }
 
         if (scatsFileReader != null && currentInflowDuration >= targetInflowDuration) {
             updateInflow();
@@ -100,6 +113,7 @@ public class TrafficSourceMacro extends AbstractTrafficSource {
             nWait = 0;
             vehiclesEnteredThisInflow += 1;
             totalVehiclesEntered += 1;
+            logIntervalVehiclesEntered += 1;
             nextArrivalInterval = getPoissonInterarrivalDelay(totalInflow);
             boolean isEntered = insertAtInflow(totalInflow, simulationTime);
             if (isEntered) {

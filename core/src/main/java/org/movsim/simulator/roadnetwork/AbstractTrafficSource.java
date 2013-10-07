@@ -26,6 +26,8 @@ public abstract class AbstractTrafficSource implements SimulationTimeStep {
          */
         public void recordData(double simulationTime, int laneEnter, double xEnter, double vEnter, double totalInflow,
                 int enteringVehCounter, double nWait);
+
+        public void recordTimeData(String id, double simulationTime, int vehEntered);
     }
 
     RecordDataCallback recordDataCallback;
@@ -34,6 +36,12 @@ public abstract class AbstractTrafficSource implements SimulationTimeStep {
         if (recordDataCallback != null) {
             recordDataCallback.recordData(simulationTime, laneEnterLast, xEnterLast, vEnterLast, totalInflow,
                     enteringVehCounter, nWait);
+        }
+    }
+
+    void recordTimeData(String id, double simulationTime, int vehEntered) {
+        if (recordDataCallback != null) {
+            recordDataCallback.recordTimeData(id, simulationTime, vehEntered);
         }
     }
 

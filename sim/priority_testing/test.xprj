@@ -48,11 +48,11 @@
         <TrafficLights logging="true" phase_step="1">
             <ControllerGroup id="plan1">
                 <TrafficControlStrategy type="VehicleActuated" />
-                <Phase duration="0" min="35" max="35" intergreen="6" all_red="2" id="A">
+                <Phase duration="0" min="35" max="35" intergreen="4" all_red="2" id="A">
                     <TrafficLightState name="first" status="Red" />
                     <TrafficLightState name="second" status="Green" condition="request" />
                 </Phase>
-                <Phase duration="0" min="35" max="35" intergreen="6" all_red="2" id="B">
+                <Phase duration="0" min="35" max="35" intergreen="4" all_red="2" id="B">
                     <TrafficLightState name="first" status="Green" condition="request" />
                     <TrafficLightState name="second" status="Red" />
                 </Phase>

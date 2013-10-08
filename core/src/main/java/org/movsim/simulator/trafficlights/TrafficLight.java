@@ -192,7 +192,7 @@ public class TrafficLight {
         // update each vehicle approach, assume perfect communication so anything over
         // a single cycle time of 2.0 seconds has stopped communicating
         for (Map.Entry<Long, Double> vehTimestamp : approachVehiclesUpdatedAt.entrySet()) {
-            if (vehTimestamp.getValue() > 2.05) {
+            if (vehTimestamp.getValue() > 2.1) {
                 toRemove.add(vehTimestamp.getKey());
             } else {
                 approachVehiclesUpdatedAt.put(vehTimestamp.getKey(), vehTimestamp.getValue() + dt);
@@ -200,7 +200,7 @@ public class TrafficLight {
         }
 
         // assume these vehicles are no longer communicating with the light
-        // as they have not communicated within the last two "cycles"
+        // as they have not communicated within the last two seconds
         for (Long vehId : toRemove) {
             // remove vehicle approach and count delay cost
             VehicleApproach removeApproach = approachVehicles.get(vehId);

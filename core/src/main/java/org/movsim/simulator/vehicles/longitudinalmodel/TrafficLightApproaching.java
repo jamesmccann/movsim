@@ -156,7 +156,8 @@ public class TrafficLightApproaching {
         }
 
         if (!stoppingCostBroadcast && considerTrafficLight) {
-            incurredStoppingCost = me.getInstantaneousCost();
+            stoppingCostBroadcast = true;
+            incurredStoppingCost += me.getInstantaneousCost();
         }
     }
 
@@ -245,15 +246,13 @@ public class TrafficLightApproaching {
                 controlledDelayTime, 
                 p.getNumberOfPassengers(), 
                 distanceToTrafficlight,
-                veh.getVehicleClass()
+                veh.getVehicleClass(), 
+                incurredStoppingCost
         );
         
-        if (!stoppingCostBroadcast && incurredStoppingCost != 0) {
+        if (incurredStoppingCost > 0) {
             stoppingCostBroadcast = true;
-            approach.incurredStoppingCost = incurredStoppingCost;
         }
-
-
 
         // clear old approach and add new one
         trafficLight.removeVehicleApproach(vehicleId);

@@ -36,7 +36,8 @@ public class VehicleApproach {
 
     public VehicleApproach(long vehId, double mass, double acceleration, double speed, int urgency,
             double costOfStopping,
-            double delayTime, int NoOfPassengers, double distance, VehicleClass vehicleClass) {
+ double delayTime, int NoOfPassengers, double distance, VehicleClass vehicleClass,
+            double incurredStoppingCost) {
         this.vehId = vehId;
         this.vehicleMass = mass;
         this.vehicleAcceleration = acceleration;
@@ -47,6 +48,7 @@ public class VehicleApproach {
         this.delayTime = delayTime;
         this.numberOfPassengers = NoOfPassengers;
         this.distanceToTrafficLight = distance;
+        this.incurredStoppingCost = incurredStoppingCost;
     }
 
     public double getDelayCost() {

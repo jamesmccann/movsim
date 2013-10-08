@@ -39,7 +39,7 @@ public class TrafficSourceMacro extends AbstractTrafficSource {
     /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(TrafficSourceMacro.class);
     
-    private static final int logInterval = 600;
+    private static final int logInterval = 30;
     
     private double logIntervalDuration = 0;
 
@@ -96,6 +96,7 @@ public class TrafficSourceMacro extends AbstractTrafficSource {
         logIntervalDuration += dt;
         
         if (logIntervalDuration >= logInterval) {
+            // double vehiclesPerS = logIntervalVehiclesEntered / (1.0 * logInterval);
             recordTimeData(this.id, simulationTime, logIntervalVehiclesEntered);
             logIntervalDuration = 0;
             logIntervalVehiclesEntered = 0;

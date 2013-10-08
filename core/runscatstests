@@ -5,20 +5,20 @@
 # 
 PRIORITY_SCENARIO=/Users/james/SWEN489/movsim/sim/priority_testing/priority_lookahead.xprj
 SCATS_SCENARIO=/Users/james/SWEN489/movsim/sim/priority_testing/scats.xprj
+VA_SCENARIO=/Users/james/SWEN489/movsim/sim/priority_testing/vehicle_actuated.xprj
 
-OUTPUT=/Users/james/Dropbox/ENGR489/movsim_runs
+OUTPUT=/Users/james/Dropbox/ENGR489/movsim_runs/
 
-rm $OUTPUT/*
+rm -rf $OUTPUT/*
 
-for I in {1..1}
+for I in $(seq 1 $1); 
   do
-    java -jar $HOME/SWEN489/movsim/core/target/MovsimCore-1.6.0-SNAPSHOT-jar-with-dependencies.jar -f $PRIORITY_SCENARIO -o $OUTPUT
+    mkdir $OUTPUT/$I
+    java -jar $HOME/SWEN489/movsim/core/target/MovsimCore-1.6.0-SNAPSHOT-jar-with-dependencies.jar -f $PRIORITY_SCENARIO -o $OUTPUT/$I/
+    java -jar $HOME/SWEN489/movsim/core/target/MovsimCore-1.6.0-SNAPSHOT-jar-with-dependencies.jar -f $SCATS_SCENARIO -o $OUTPUT/$I/
+    java -jar $HOME/SWEN489/movsim/core/target/MovsimCore-1.6.0-SNAPSHOT-jar-with-dependencies.jar -f $VA_SCENARIO -o $OUTPUT/$I/
   done
 
-for J in {1..1}
-  do
-    java -jar $HOME/SWEN489/movsim/core/target/MovsimCore-1.6.0-SNAPSHOT-jar-with-dependencies.jar -f $SCATS_SCENARIO -o $OUTPUT
-  done
 
 
 

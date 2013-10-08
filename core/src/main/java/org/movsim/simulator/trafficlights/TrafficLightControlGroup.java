@@ -49,6 +49,10 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
 
     private int phaseCount;
 
+    private static final int logTimeInterval = 3600;
+
+    private double logTimeDuration;
+
     /** mapping from the signal's name to the trafficlight */
     private final Map<String, TrafficLight> trafficLights = new HashMap<>();
 
@@ -102,6 +106,7 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
     @Override
     public void timeStep(double dt, double simulationTime, long iterationCount) {
         currentPhaseDuration += dt;
+        logTimeDuration += dt;
         if (intergreen) { currentIntergreenDuration += dt; }
         if (allRed) { currentAllRedDuration += dt; }
 
@@ -110,8 +115,9 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
         determinePhase();
         updatePhase(simulationTime, iterationCount);
         updateTrafficLightApproaches(dt);
-        if (recordDataCallback != null) {
-            // recordDataCallback.recordData(simulationTime, iterationCount, trafficLights.values());
+        if (recordDataCallback != null && logTimeDuration >= logTimeInterval) {
+            logTimeDuration = 0;
+            recordDataCallback.recordTimeInterval(simulationTime);
         }
     }
 
@@ -230,7 +236,10 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
          * @param trafficLights
          */
         public void recordVehicleApproach(VehicleApproach approach);
+
         public void recordData(double simulationTime, long iterationCount, Iterable<TrafficLight> trafficLights);
+
+        public void recordTimeInterval(double simulationTime);
 
         public void recordPhase(double simulationTime, long iterationCount, int phaseCount,
                 ControlStrategy controlStrategy,

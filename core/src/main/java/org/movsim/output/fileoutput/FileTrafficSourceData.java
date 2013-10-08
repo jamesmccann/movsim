@@ -69,8 +69,9 @@ public class FileTrafficSourceData extends FileOutputBase implements TrafficSour
     }
 
     @Override
-    public void recordTimeData(String sourceId, double simulationTime, int vehEntered) {
-        writer.println(simulationTime + ", " + sourceId + ", " + vehEntered);
+    public void recordTimeData(String sourceId, double simulationTime, double vehEntered) {
+        int logTime = (int) Math.round(simulationTime);
+        writer.println(logTime + ", " + vehEntered);
         writer.flush();
     }
 }

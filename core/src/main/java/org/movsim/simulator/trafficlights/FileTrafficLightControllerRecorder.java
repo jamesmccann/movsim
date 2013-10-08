@@ -25,6 +25,7 @@
  */
 package org.movsim.simulator.trafficlights;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,12 +44,14 @@ public class FileTrafficLightControllerRecorder extends FileOutputBase implement
         TrafficLightControlGroup.RecordDataCallback {
 
     private static final String extensionFormat = ".controllerGroup%s_%s.csv";
+    private final PrintWriter timeIntervalWriter;
     private final int nTimestep;
     private final int sTimestep;
     private final int phaseStep;
     private double nextOutputTime;
 
     public List<VehicleApproach> totalVehicleApproachesForGroup;
+    public List<VehicleApproach> totalVehicleApproachesForInterval;
 
     private TrafficLightControlGroup group;
 
@@ -64,6 +67,7 @@ public class FileTrafficLightControllerRecorder extends FileOutputBase implement
         Preconditions.checkArgument(!group.groupId().isEmpty());
         Preconditions.checkArgument(!group.firstSignalId().isEmpty());
         totalVehicleApproachesForGroup = new ArrayList<VehicleApproach>();
+        totalVehicleApproachesForInterval = new ArrayList<VehicleApproach>();
         this.group = group;
         this.nTimestep = nTimestep;
         this.sTimestep = sTimestep;
@@ -71,6 +75,8 @@ public class FileTrafficLightControllerRecorder extends FileOutputBase implement
         nextOutputTime = nTimestep;
         String groupName = group.groupId().replaceAll("\\s", "");
         writer = Preconditions.checkNotNull(createWriter(String.format(extensionFormat, "Phases", groupName)));
+        timeIntervalWriter = Preconditions.checkNotNull(createWriter(String.format(extensionFormat, "TimeInterval",
+                groupName)));
     }
 
     /**
@@ -178,6 +184,7 @@ public class FileTrafficLightControllerRecorder extends FileOutputBase implement
 
     public void recordVehicleApproach(VehicleApproach approach) {
         totalVehicleApproachesForGroup.add(approach);
+        totalVehicleApproachesForInterval.add(approach);
     }
 
     @Override
@@ -208,6 +215,32 @@ public class FileTrafficLightControllerRecorder extends FileOutputBase implement
         writer.printf("total approaches: %d %n", totalVehicleApproachesForGroup.size());
         writer.flush();
         writer.close();
+        timeIntervalWriter.close();
+    }
+
+    @Override
+    public void recordTimeInterval(double simulationTime) {
+        int simTime = (int) Math.round(simulationTime);
+        if (totalVehicleApproachesForInterval.isEmpty()) {
+            timeIntervalWriter.printf("%d, 0, 0, 0", simTime);
+            return;
+        }
+        double averageApproachDelayTime = 0, 
+               averageApproachDelayCost = 0, 
+               averageApproachStoppingCost = 0;
+        for (VehicleApproach va : totalVehicleApproachesForInterval) {
+            averageApproachDelayTime += va.delayTime;
+            averageApproachDelayCost += va.getDelayCost();
+            averageApproachStoppingCost += va.incurredStoppingCost;
+        }
+        // averageApproachDelayTime /= (1.0 * totalVehicleApproachesForInterval.size());
+        // averageApproachDelayCost /= (1.0 * totalVehicleApproachesForInterval.size());
+        // averageApproachStoppingCost /= (1.0 * totalVehicleApproachesForInterval.size());
+        totalVehicleApproachesForInterval = new ArrayList<VehicleApproach>();
+        timeIntervalWriter.printf("%d, %.2f, %.2f, %.2f \n", simTime, averageApproachDelayTime,
+                averageApproachDelayCost,
+                averageApproachStoppingCost);
+        timeIntervalWriter.flush();
     }
 
 }

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Movsim>
+    <VehiclePrototypes>
+        <VehiclePrototypeConfiguration label="IDM1" length="6" maximum_deceleration="9">
+            <AccelerationModelType>
+                <ModelParameterIDM v0="54" T="1" s0="1" s1="2" delta="4" a="1.2" b="2.0" />
+            </AccelerationModelType>
+            <LaneChangeModelType european_rules="true" crit_speed_eur="20">
+                <ModelParameterMOBIL safe_deceleration="5.0" minimum_gap="2.0" threshold_acceleration="0.1" right_bias_acceleration="0.05" politeness="0.1" />
+            </LaneChangeModelType>
+        </VehiclePrototypeConfiguration>
+        <!-- trucks -->
+        <VehiclePrototypeConfiguration label="IDM2" length="16" maximum_deceleration="9">
+            <AccelerationModelType>
+                <ModelParameterIDM v0="54" T="1" s0="2" s1="4" delta="4" a="0.7" b="2.0" />
+            </AccelerationModelType>
+            <LaneChangeModelType european_rules="true" crit_speed_eur="20">
+                <ModelParameterMOBIL safe_deceleration="4.0" minimum_gap="2.0" threshold_acceleration="0.2" right_bias_acceleration="0.3" politeness="0.1" />
+            </LaneChangeModelType>
+        </VehiclePrototypeConfiguration>
+    </VehiclePrototypes>
+    <Scenario network_filename="four_way_junction.xodr">
+        <Simulation timestep="0.2" duration="48600" crash_exit="false">
+            <TrafficComposition>
+                <VehicleType label="IDM1" fraction="0.8" relative_v0_randomization="0.2" />
+                <VehicleType label="IDM2" fraction="0.2" relative_v0_randomization="0.2" />
+            </TrafficComposition>
+            <SCATSDataFile filename="VivianVictoria.sm" intersectionId="460" />
+            <Road id="1">
+                <TrafficComposition>
+                    <VehicleType label="IDM1" fraction="0.8" relative_v0_randomization="0.2" />
+                    <VehicleType label="IDM2" fraction="0.2" relative_v0_randomization="0.2" />
+                </TrafficComposition>
+                <InitialConditions />
+                <TrafficSource logging="true" id="301">
+                    <Inflow t="0" q_per_hour="0" v="13" />
+                </TrafficSource>
+                <Detectors />
+            </Road>
+            <Road id="3">
+                <InitialConditions />
+                <TrafficSource logging="true" id="302">
+                    <Inflow t="0" q_per_hour="0" v="13" />
+                </TrafficSource>
+                <Detectors />
+            </Road>
+        </Simulation>
+        <TrafficLights logging="true" phase_step="1">
+            <ControllerGroup id="plan1">
+                <TrafficControlStrategy type="VehicleActuated" />
+                <Phase duration="30" min="15" max="60" intergreen="4" all_red="2" id="A">
+                    <TrafficLightState name="first" status="Red" />
+                    <TrafficLightState name="second" status="Green" condition="request" />
+                </Phase>
+                <Phase duration="30" min="15" max="60" intergreen="4" all_red="2" id="B">
+                    <TrafficLightState name="first" status="Green" condition="request" />
+                    <TrafficLightState name="second" status="Red" />
+                </Phase>
+            </ControllerGroup>
+        </TrafficLights>
+    </Scenario>
+</Movsim>
+

@@ -104,7 +104,8 @@ public class FileTrafficLightControllerRecorder extends FileOutputBase implement
     }
 
     @Override
-    public void recordPhase(double simulationTime, long iterationCount, int phaseCount, ControlStrategy strategy,
+    public void recordPhase(double simulationTime, long iterationCount, double duration, int phaseCount,
+            ControlStrategy strategy,
             Iterable<TrafficLight> trafficLights) {
         if (phaseCount == 0) {
             writePhaseFileHeader(strategy, trafficLights);
@@ -115,7 +116,7 @@ public class FileTrafficLightControllerRecorder extends FileOutputBase implement
         }
         nextOutputTime = simulationTime + sTimestep;
 
-        writePhaseData(simulationTime, phaseCount, strategy, trafficLights);
+        writePhaseData(simulationTime, phaseCount, duration, strategy, trafficLights);
     }
 
     private void writeData(double simulationTime, String formattedTime, Iterable<TrafficLight> trafficLights) {
@@ -126,7 +127,7 @@ public class FileTrafficLightControllerRecorder extends FileOutputBase implement
         write("%n");
     }
 
-    private void writePhaseData(double simulationTime, int phaseCount, ControlStrategy strategy,
+    private void writePhaseData(double simulationTime, int phaseCount, double duration, ControlStrategy strategy,
             Iterable<TrafficLight> trafficLights) {
         double delayCostForPhase = 0.0;
         double stoppingCostForPhase = 0.0;
@@ -137,7 +138,8 @@ public class FileTrafficLightControllerRecorder extends FileOutputBase implement
             vehicleApproachCount += trafficLight.getVehicleApproaches().size();
         }
         Map<Integer, Double> delayTimePerUrgency = group.getAverageDelayTimePerUrgency();
-        writer.printf("%.2f,%d,%d,%.2f,%.2f,", simulationTime, phaseCount, vehicleApproachCount, delayCostForPhase,
+        writer.printf("%.2f,%d,%.2f, %d,%.2f,%.2f,", simulationTime, phaseCount, duration, vehicleApproachCount,
+                delayCostForPhase,
                 stoppingCostForPhase);
         int i = 0;
         for (Double delayTime : delayTimePerUrgency.values()) {

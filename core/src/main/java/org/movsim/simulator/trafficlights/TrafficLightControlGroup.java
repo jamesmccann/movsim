@@ -152,7 +152,8 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
 
     public void nextPhase(double simulationTime, long iterationCount) {
         // before changing, output the current phase
-        recordDataCallback.recordPhase(simulationTime, iterationCount, phaseCount, controlStrategy,
+        recordDataCallback.recordPhase(simulationTime, iterationCount, currentPhaseDuration, phaseCount,
+                controlStrategy,
                 trafficLights.values());
         phaseCount += 1;
 
@@ -182,6 +183,7 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
         currentPhaseDuration = 0;
         currentIntergreenDuration = 0;
         currentAllRedDuration = 0;
+        
         controlStrategy.acknowledgeNextPhaseSet(currentPhaseIndex);
         updateTrafficLights(phases.get(currentPhaseIndex));
     }
@@ -241,7 +243,8 @@ public class TrafficLightControlGroup implements SimulationTimeStep, TriggerCall
 
         public void recordTimeInterval(double simulationTime);
 
-        public void recordPhase(double simulationTime, long iterationCount, int phaseCount,
+        public void recordPhase(double simulationTime, long iterationCount, double duration,
+                int phaseCount,
                 ControlStrategy controlStrategy,
                 Iterable<TrafficLight> trafficLights);
 

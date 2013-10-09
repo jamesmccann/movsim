@@ -138,7 +138,9 @@ public class SCATSFileReader {
             double inflow = numVehicles / (1.0 * currentCycle.cycleDuration);
             // System.out.println("Approach " + approachInflow.getKey() + ", vehicles: " + numVehicles + ", inflow: "
             // + inflow);
-            source.setInflow(inflow, numVehicles, currentCycle.cycleDuration);
+            if (source != null) {
+                source.setInflow(inflow, numVehicles, currentCycle.cycleDuration);
+            }
         }
         lastInflowUpdateCycle = currentCycle;
     }
@@ -187,14 +189,15 @@ public class SCATSFileReader {
                 cycle.cycleDuration += phaseTime;
             }
 
-            String approachId = getData(data, 9, 11);
+            String approachId = getData(data, 8, 11);
             Integer approachCount = 0;
 
             // approach counts on V0
             try {
                 Integer apc = Integer.parseInt(getData(data, 29, 31));
-                approachCount += apc;
-                numVehiclesInFile += apc;
+                // CourtenayTory ignore this num
+                // approachCount += apc;
+                // numVehiclesInFile += apc;
                 apc = Integer.parseInt(getData(data, 42, 44));
                 approachCount += apc;
                 numVehiclesInFile += apc;

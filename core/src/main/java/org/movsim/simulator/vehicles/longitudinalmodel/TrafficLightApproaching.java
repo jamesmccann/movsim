@@ -157,7 +157,7 @@ public class TrafficLightApproaching {
 
         if (!stoppingCostBroadcast && considerTrafficLight) {
             stoppingCostBroadcast = true;
-            incurredStoppingCost += me.getInstantaneousCost();
+            incurredStoppingCost = me.getInstantaneousCost();
         }
     }
 
@@ -249,10 +249,6 @@ public class TrafficLightApproaching {
                 veh.getVehicleClass(), 
                 incurredStoppingCost
         );
-        
-        if (incurredStoppingCost > 0) {
-            stoppingCostBroadcast = true;
-        }
 
         // clear old approach and add new one
         trafficLight.removeVehicleApproach(vehicleId);

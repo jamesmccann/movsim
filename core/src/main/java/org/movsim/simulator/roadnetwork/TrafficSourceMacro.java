@@ -296,7 +296,7 @@ public class TrafficSourceMacro extends AbstractTrafficSource {
         vehiclesWaiting += (targetVehiclesThisInflow - vehiclesEnteredThisInflow);
         totalVehiclesEntered += (targetVehiclesThisInflow - vehiclesEnteredThisInflow);
 
-        System.out.println("Source updating, target: " + targetVehiclesThisInflow + ", actual: "
+        System.out.println("Source " + this.id + " updating target: " + targetVehiclesThisInflow + ", actual: "
                 + vehiclesEnteredThisInflow + ", total entered: " + totalVehiclesEntered + ", total target: "
                 + totalTargetVehicles + ", waiting vehicles: " + vehiclesWaiting);
 

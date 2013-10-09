@@ -80,6 +80,8 @@ public class TrafficLight {
 
     public int vehiclesForPhase;
 
+    private int removedVehicles = 0;
+
     public TrafficLight(String name, String groupId, TriggerCallback triggerCallback) {
         this.name = name;
         this.groupId = groupId;
@@ -176,9 +178,6 @@ public class TrafficLight {
     }
 
     public void addVehicleApproach(long vehicleId, VehicleApproach approach) {
-        if (approach.incurredStoppingCost != 0) {
-            addToCumulativeStoppingCost(approach.incurredStoppingCost);
-        }
         approachVehicles.put(vehicleId, approach);
         approachVehiclesUpdatedAt.put(vehicleId, 0.0);
     }
@@ -202,12 +201,17 @@ public class TrafficLight {
         // assume these vehicles are no longer communicating with the light
         // as they have not communicated within the last two seconds
         for (Long vehId : toRemove) {
+            System.out.println("passedVehicles " + removedVehicles++);
             // remove vehicle approach and count delay cost
             VehicleApproach removeApproach = approachVehicles.get(vehId);
             addToCumulativeDelayCost(removeApproach.getDelayCost());
             addToCumulativeDelayTime(removeApproach.vehicleUrgency, removeApproach.delayTime);
             addToCumulativeVehicleCount(removeApproach.vehicleUrgency);
             triggerCallback.recordVehicleApproach(removeApproach);
+
+            if (removeApproach.incurredStoppingCost != 0) {
+                addToCumulativeStoppingCost(removeApproach.incurredStoppingCost);
+            }
 
             approachVehicles.remove(vehId);
             approachVehiclesUpdatedAt.remove(vehId);

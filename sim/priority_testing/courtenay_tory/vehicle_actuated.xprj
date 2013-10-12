@@ -25,7 +25,7 @@
                 <VehicleType label="IDM1" fraction="0.8" relative_v0_randomization="0.2" />
                 <VehicleType label="IDM2" fraction="0.2" relative_v0_randomization="0.2" />
             </TrafficComposition>
-            <SCATSDataFile filename="VivianVictoria.sm" intersectionId="460" />
+            <SCATSDataFile filename="CourtenayTory.sm" intersectionId="460" />
             <Road id="1">
                 <TrafficComposition>
                     <VehicleType label="IDM1" fraction="0.8" relative_v0_randomization="0.2" />
@@ -47,12 +47,12 @@
         </Simulation>
         <TrafficLights logging="true" phase_step="1">
             <ControllerGroup id="plan1">
-                <TrafficControlStrategy type="VehicleActuated" />
-                <Phase duration="30" min="15" max="60" intergreen="4" all_red="2" id="A">
+                <TrafficControlStrategy type="VehicleActuated" range="10"/>
+                <Phase duration="30" min="15" max="60" intergreen="4" all_red="2" id="AE">
                     <TrafficLightState name="first" status="Red" />
                     <TrafficLightState name="second" status="Green" condition="request" />
                 </Phase>
-                <Phase duration="30" min="15" max="60" intergreen="4" all_red="2" id="B">
+                <Phase duration="30" min="15" max="60" intergreen="4" all_red="2" id="D">
                     <TrafficLightState name="first" status="Green" condition="request" />
                     <TrafficLightState name="second" status="Red" />
                 </Phase>

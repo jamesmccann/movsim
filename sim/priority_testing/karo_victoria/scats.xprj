@@ -25,22 +25,22 @@
                 <VehicleType label="IDM1" fraction="0.8" relative_v0_randomization="0.2" />
                 <VehicleType label="IDM2" fraction="0.2" relative_v0_randomization="0.2" />
             </TrafficComposition>
-            <SCATSDataFile filename="VivianVictoria.sm" controllerId="plan1" intersectionId="530" />
+            <SCATSDataFile filename="KaroVictoria.sm" controllerId="plan1" intersectionId="610" />
             <Road id="1">
                 <TrafficComposition>
                     <VehicleType label="IDM1" fraction="0.8" relative_v0_randomization="0.2" />
                     <VehicleType label="IDM2" fraction="0.2" relative_v0_randomization="0.2" />
                 </TrafficComposition>
                 <InitialConditions />
-                <TrafficSource logging="true" id="13">
-                    <Inflow t="0" q_per_hour="200" v="13" />
+                <TrafficSource logging="true" id="253">
+                    <Inflow t="0" q_per_hour="0" v="13" />
                 </TrafficSource>
                 <Detectors />
             </Road>
             <Road id="3">
                 <InitialConditions />
-                <TrafficSource logging="true" id="12">
-                    <Inflow t="0" q_per_hour="400" v="13" />
+                <TrafficSource logging="true" id="254">
+                    <Inflow t="0" q_per_hour="0" v="13" />
                 </TrafficSource>
                 <Detectors />
             </Road>
@@ -48,11 +48,11 @@
         <TrafficLights logging="true" phase_step="1">
             <ControllerGroup id="plan1">
                 <TrafficControlStrategy type="SCATSData" />
-                <Phase duration="0" min="15" max="60" intergreen="4" all_red="2" id="A">
+                <Phase duration="0" min="15" max="60" intergreen="4" all_red="2" id="B">
                     <TrafficLightState name="first" status="Red" />
                     <TrafficLightState name="second" status="Green" condition="request" />
                 </Phase>
-                <Phase duration="0" min="15" max="60" intergreen="4" all_red="2" id="B">
+                <Phase duration="0" min="15" max="60" intergreen="4" all_red="2" id="A">
                     <TrafficLightState name="first" status="Green" condition="request" />
                     <TrafficLightState name="second" status="Red" />
                 </Phase>

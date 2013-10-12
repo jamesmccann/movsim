@@ -29,14 +29,14 @@
             <Road id="1">
                 <InitialConditions />
                 <TrafficSource logging="true" id="253">
-                    <Inflow t="0" q_per_hour="200" v="13" />
+                    <Inflow t="0" q_per_hour="0" v="13" />
                 </TrafficSource>
                 <Detectors />
             </Road>
             <Road id="3">
                 <InitialConditions />
                 <TrafficSource logging="true" id="254">
-                    <Inflow t="0" q_per_hour="400" v="13" />
+                    <Inflow t="0" q_per_hour="0" v="13" />
                 </TrafficSource>
                 <Detectors />
             </Road>

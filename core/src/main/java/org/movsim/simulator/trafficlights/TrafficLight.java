@@ -201,7 +201,7 @@ public class TrafficLight {
         // assume these vehicles are no longer communicating with the light
         // as they have not communicated within the last two seconds
         for (Long vehId : toRemove) {
-            System.out.println("passedVehicles " + removedVehicles++);
+            //System.out.println("passedVehicles " + removedVehicles++);
             // remove vehicle approach and count delay cost
             VehicleApproach removeApproach = approachVehicles.get(vehId);
             addToCumulativeDelayCost(removeApproach.getDelayCost());

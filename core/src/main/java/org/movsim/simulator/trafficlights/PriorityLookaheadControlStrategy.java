@@ -80,8 +80,8 @@ public class PriorityLookaheadControlStrategy implements ControlStrategy {
         int targetPhaseIndex = highestPriorityPhase();
 
         if (targetPhaseIndex != currentPhaseIndex) {
-            System.out.println("current phase index: " + currentPhaseIndex);
-            System.out.println("priority strategy setting next phase to " + targetPhaseIndex);
+            //System.out.println("current phase index: " + currentPhaseIndex);
+            //System.out.println("priority strategy setting next phase to " + targetPhaseIndex);
             nextPhaseIndex = targetPhaseIndex;
         }
     }
@@ -133,7 +133,7 @@ public class PriorityLookaheadControlStrategy implements ControlStrategy {
         }
 
         this.targetExtendedGreenTime = minLookahead;
-        System.out.println("Optimal lookahead for current phase: " + minLookahead);
+        //System.out.println("Optimal lookahead for current phase: " + minLookahead);
     }
 
     private int highestPriorityPhase() {

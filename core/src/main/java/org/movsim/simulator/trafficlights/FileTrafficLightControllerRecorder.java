@@ -193,7 +193,7 @@ public class FileTrafficLightControllerRecorder extends FileOutputBase implement
     public void recordComplete() {
         System.out.println("COMPLETE");
         System.out.println("total apporaches " + totalVehicleApproachesForGroup.size());
-        writer = createWriter("approaches_" + group.controlStrategy.getName() + ".txt");
+        writer = createWriter(".approaches.csv");
         Map<Integer, List<VehicleApproach>> vehicleApproachPerUrgency = new HashMap<Integer, List<VehicleApproach>>();
         for (int i = 1; i <= 5; i++) { vehicleApproachPerUrgency.put(i, new ArrayList<VehicleApproach>()); }
         for (VehicleApproach va: totalVehicleApproachesForGroup) { vehicleApproachPerUrgency.get(va.vehicleUrgency).add(va); }
@@ -207,11 +207,13 @@ public class FileTrafficLightControllerRecorder extends FileOutputBase implement
             for (VehicleApproach approach : approaches) {
                 delayTime += approach.delayTime;
                 delayCost += approach.getDelayCost();
+                stoppingCost += approach.incurredStoppingCost;
             }
-            delayTime /= (1.0 * count);
-            delayCost /= (1.0 * count);
+            // delayTime /= (1.0 * count);
+            // delayCost /= (1.0 * count);
+            // stoppingCost /= (1.0 * count);
 
-            writer.printf("%d, %d, %.2f, %.2f %n", i, count, delayTime, delayCost);
+            writer.printf("%d, %d, %.2f, %.2f, %.2f %n", i, count, delayTime, delayCost, stoppingCost);
         }
         
         writer.printf("total approaches: %d %n", totalVehicleApproachesForGroup.size());

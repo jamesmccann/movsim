@@ -3,15 +3,15 @@
 # example for start script for MovSim core, see http://www.movsim.org
 # please specify your path to the target output folder and the target version
 # 
-PRIORITY_SCENARIO=/Users/james/SWEN489/movsim/sim/priority_testing/priority_lookahead.xprj
-SCATS_SCENARIO=/Users/james/SWEN489/movsim/sim/priority_testing/scats.xprj
-VA_SCENARIO=/Users/james/SWEN489/movsim/sim/priority_testing/vehicle_actuated.xprj
+PRIORITY_SCENARIO=/Users/james/SWEN489/movsim/sim/priority_testing/$1/priority_lookahead.xprj
+SCATS_SCENARIO=/Users/james/SWEN489/movsim/sim/priority_testing/$1/scats.xprj
+VA_SCENARIO=/Users/james/SWEN489/movsim/sim/priority_testing/$1/vehicle_actuated.xprj
 
 OUTPUT=/Users/james/Dropbox/ENGR489/movsim_runs/
 
 rm -rf $OUTPUT/*
 
-for I in $(seq 1 $1); 
+for I in $(seq 1 $2); 
   do
     mkdir $OUTPUT/$I
     java -jar $HOME/SWEN489/movsim/core/target/MovsimCore-1.6.0-SNAPSHOT-jar-with-dependencies.jar -f $PRIORITY_SCENARIO -o $OUTPUT/$I/

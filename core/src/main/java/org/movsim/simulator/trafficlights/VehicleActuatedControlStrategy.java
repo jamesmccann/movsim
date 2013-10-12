@@ -49,7 +49,7 @@ public class VehicleActuatedControlStrategy implements ControlStrategy {
     public void update(double dt) {
         currentPhaseDuration += dt;
         currentGapDuration += dt;
-        if (nextPhaseIndex != -1) { currentMaximumDuration += dt; }
+        currentMaximumDuration += dt;
 
         Phase phase = phases.get(currentPhaseIndex);
         updateGapTimer(phase);
@@ -69,7 +69,7 @@ public class VehicleActuatedControlStrategy implements ControlStrategy {
         for (TrafficLightState state : phase.getTrafficLightState()) {
             TrafficLight light = trafficLights.get(state.getName());
             if (state.getCondition() == TrafficLightCondition.REQUEST && vehicleIsInFrontOfLight(light)) {
-                LOG.debug("trigger fulfilled for trafficLight " + state.getName());
+                LOG.info("trigger fulfilled for trafficLight " + state.getName());
                 return true;
             }
         }
@@ -110,6 +110,7 @@ public class VehicleActuatedControlStrategy implements ControlStrategy {
     }
 
     public boolean phaseMaximumConditionFulfilled(Phase phase) {
+        // System.out.println("current max: " + currentMaximumDuration);
         return currentMaximumDuration + phase.getIntergreen() + phase.getAllRed() > phase.getMax();
     }
 
@@ -151,8 +152,8 @@ public class VehicleActuatedControlStrategy implements ControlStrategy {
         }
 
         if (targetPhaseIndex != currentPhaseIndex) {
-            System.out.println("current phase index: " + currentPhaseIndex);
-            System.out.println("vehicle acutated strategy setting next phase to " + targetPhaseIndex);
+            //System.out.println("current phase index: " + currentPhaseIndex);
+            //System.out.println("vehicle acutated strategy setting next phase to " + targetPhaseIndex);
             nextPhaseIndex = targetPhaseIndex;
         }
     }
@@ -169,8 +170,16 @@ public class VehicleActuatedControlStrategy implements ControlStrategy {
     public boolean checkNextPhaseRequest() {
         if (nextPhaseIndex == -1) { return false; }
         Phase currentPhase = phases.get(currentPhaseIndex);
-        return (phaseMinimumConditionFulfilled(currentPhase) && (gapTimeoutConditionFulfilled() 
-                || phaseMaximumConditionFulfilled(currentPhase)));
+        
+        if (phaseMinimumConditionFulfilled(currentPhase) && gapTimeoutConditionFulfilled()) {
+            // System.out.println("minimum + gap");
+            return true;
+        }
+        if (phaseMaximumConditionFulfilled(currentPhase)) {
+            // System.out.println("max");
+            return true;
+        }
+        return false;
     }
 
     @Override

@@ -138,8 +138,8 @@ public class PriorityActuatedControlStrategy implements ControlStrategy {
         if (nextPhaseIndex != -1) { return; }
         // set next to the current highest priority phase
         int targetPhaseIndex = highestPriorityPhase();
-        System.out.println("current phase index: " + currentPhaseIndex);
-        System.out.println("priority strategy setting next phase to " + targetPhaseIndex);
+        //System.out.println("current phase index: " + currentPhaseIndex);
+        //System.out.println("priority strategy setting next phase to " + targetPhaseIndex);
 
         if (targetPhaseIndex != currentPhaseIndex) {
             nextPhaseIndex = targetPhaseIndex;

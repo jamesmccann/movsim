@@ -79,8 +79,10 @@ public class ParsedSCATSDataControlStrategy implements ControlStrategy {
                 break; // first only
             }
             
-            Phase currentPhase = phases.get(currentPhaseIndex);
-            targetPhaseDurations.remove(currentPhase.getId());
+            if (currentPhaseIndex == -1)
+             {
+                return; //some kinda error
+            }
         }
 
         currentPhaseDuration += dt;
@@ -115,10 +117,10 @@ public class ParsedSCATSDataControlStrategy implements ControlStrategy {
     public void determineNextPhaseIndex() {
         Phase currentPhase = phases.get(currentPhaseIndex);
         if (currentPhaseDuration + currentPhase.getAllRed() + currentPhase.getIntergreen() >= targetPhaseDuration) {
-            System.out.println(targetPhaseDurations.toString());
+            //System.out.println(targetPhaseDurations.toString());
             if (targetPhaseDurations.isEmpty()) {
                 // trigger change to begin
-                LOG.info("SCATS Data Strategy setting next phase index");
+                LOG.debug("SCATS Data Strategy setting next phase index");
                 if (!scatsFileReader.update()) {
                     // probably reached the end of the available SCATS data
                     // return (will leave traffic lights unchanged)

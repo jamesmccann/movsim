@@ -180,7 +180,7 @@ public class FileTrafficLightControllerRecorder extends FileOutputBase implement
     private void writePhaseFileHeader(ControlStrategy strategy, Iterable<TrafficLight> trafficLights) {
         writer.printf(COMMENT_CHAR + " per phase cost output for control strategy: %s %n", strategy.getName());
         writer.printf(COMMENT_CHAR
-                + "simulationTime,phase count,vehicle approaches,delay cost,stopping cost, "
+                + "simulationTime,phase count,phase duration,vehicle approaches,delay cost,stopping cost, "
                 + "delay for urgency 1,delay for urgency 2,delay for urgency 3,delay for urgency 4,delay for urgency 5 %n");
     }
 
@@ -204,16 +204,35 @@ public class FileTrafficLightControllerRecorder extends FileOutputBase implement
             double delayTime = 0.0;
             double delayCost = 0.0;
             double stoppingCost = 0.0;
+            double stoppedVehDelayTime = 0.0;
+            double stoppedVehDelayCost = 0.0;
+            double stoppedVehStoppingCost = 0.0;
+            double stoppedCount = 0;
             for (VehicleApproach approach : approaches) {
+                if (approach.vehicleStopped) {
+                    stoppedVehDelayTime += approach.delayTime;
+                    stoppedVehDelayCost += approach.getDelayCost();
+                    stoppedVehStoppingCost += approach.incurredStoppingCost;
+                    stoppedCount += 1;
+                }
                 delayTime += approach.delayTime;
                 delayCost += approach.getDelayCost();
                 stoppingCost += approach.incurredStoppingCost;
             }
-            // delayTime /= (1.0 * count);
-            // delayCost /= (1.0 * count);
-            // stoppingCost /= (1.0 * count);
 
-            writer.printf("%d, %d, %.2f, %.2f, %.2f %n", i, count, delayTime, delayCost, stoppingCost);
+            double meanDelayTime = delayTime / (1.0 * count);
+            double meanDelayCost = delayCost / (1.0 * count);
+            double meanStoppingCost = stoppingCost / (1.0 * count);
+
+            double meanStoppedDelayTime = stoppedVehDelayTime / (1.0 * stoppedCount);
+            double meanStoppedDelayCost = stoppedVehDelayCost / (1.0 * stoppedCount);
+            double meanStoppedStoppingCost = stoppedVehStoppingCost / (1.0 * stoppedCount);
+
+            writer.printf("%d, %d, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f %n", i, count, delayTime,
+                    delayCost,
+                    stoppingCost, meanDelayTime,
+                    meanDelayCost, meanStoppingCost, meanStoppedDelayTime,
+                    meanStoppedDelayCost, meanStoppedStoppingCost);
         }
         
         writer.printf("total approaches: %d %n", totalVehicleApproachesForGroup.size());

@@ -196,8 +196,8 @@ public class SCATSFileReader {
             try {
                 Integer apc = Integer.parseInt(getData(data, 29, 31));
                 // CourtenayTory ignore this num
-                // approachCount += apc;
-                // numVehiclesInFile += apc;
+                approachCount += apc;
+                numVehiclesInFile += apc;
                 apc = Integer.parseInt(getData(data, 42, 44));
                 approachCount += apc;
                 numVehiclesInFile += apc;

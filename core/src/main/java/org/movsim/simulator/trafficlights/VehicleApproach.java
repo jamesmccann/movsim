@@ -34,10 +34,12 @@ public class VehicleApproach {
 
     public static EstimatedClearDistances estimatedClearDistances = new EstimatedClearDistances();
 
+    public boolean vehicleStopped;
+
     public VehicleApproach(long vehId, double mass, double acceleration, double speed, int urgency,
             double costOfStopping,
  double delayTime, int NoOfPassengers, double distance, VehicleClass vehicleClass,
-            double incurredStoppingCost) {
+            double incurredStoppingCost, boolean vehicleStopped) {
         this.vehId = vehId;
         this.vehicleMass = mass;
         this.vehicleAcceleration = acceleration;
@@ -49,6 +51,7 @@ public class VehicleApproach {
         this.numberOfPassengers = NoOfPassengers;
         this.distanceToTrafficLight = distance;
         this.incurredStoppingCost = incurredStoppingCost;
+        this.vehicleStopped = vehicleStopped;
     }
 
     public double getDelayCost() {

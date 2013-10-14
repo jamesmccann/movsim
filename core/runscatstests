@@ -3,22 +3,28 @@
 # example for start script for MovSim core, see http://www.movsim.org
 # please specify your path to the target output folder and the target version
 # 
-PRIORITY_SCENARIO=/Users/james/SWEN489/movsim/sim/priority_testing/$1/priority_lookahead.xprj
-SCATS_SCENARIO=/Users/james/SWEN489/movsim/sim/priority_testing/$1/scats.xprj
-VA_SCENARIO=/Users/james/SWEN489/movsim/sim/priority_testing/$1/vehicle_actuated.xprj
 
-OUTPUT=/Users/james/Dropbox/ENGR489/movsim_runs/
 
-rm -rf $OUTPUT/*
+#OUTPUT=/Users/james/Dropbox/ENGR489/movsim_runs/vivian_victoria
+#PRIORITY_SCENARIO=/Users/james/SWEN489/movsim/sim/priority_testing/vivian_victoria/priority_lookahead.xprj
+#SCATS_SCENARIO=/Users/james/SWEN489/movsim/sim/priority_testing/vivian_victoria/scats.xprj
+#VA_SCENARIO=/Users/james/SWEN489/movsim/sim/priority_testing/vivian_victoria/vehicle_actuated.xprj
+#for I in $(seq 1 $1); 
+  #do
+    #mkdir -p $OUTPUT/$I
+    ##java -jar $HOME/SWEN489/movsim/core/target/MovsimCore-1.6.0-SNAPSHOT-jar-with-dependencies.jar -f $PRIORITY_SCENARIO -o $OUTPUT/$I/
+    ##java -jar $HOME/SWEN489/movsim/core/target/MovsimCore-1.6.0-SNAPSHOT-jar-with-dependencies.jar -f $SCATS_SCENARIO -o $OUTPUT/$I/
+    #java -jar $HOME/SWEN489/movsim/core/target/MovsimCore-1.6.0-SNAPSHOT-jar-with-dependencies.jar -f $VA_SCENARIO -o $OUTPUT/$I/
+  #done
 
-for I in $(seq 1 $2); 
+OUTPUT=/Users/james/Dropbox/ENGR489/movsim_runs/karo_victoria
+PRIORITY_SCENARIO=/Users/james/SWEN489/movsim/sim/priority_testing/karo_victoria/priority_lookahead.xprj
+SCATS_SCENARIO=/Users/james/SWEN489/movsim/sim/priority_testing/karo_victoria/scats.xprj
+VA_SCENARIO=/Users/james/SWEN489/movsim/sim/priority_testing/karo_victoria/vehicle_actuated.xprj
+for I in $(seq 1 $1); 
   do
-    mkdir $OUTPUT/$I
+    mkdir -p $OUTPUT/$I
     java -jar $HOME/SWEN489/movsim/core/target/MovsimCore-1.6.0-SNAPSHOT-jar-with-dependencies.jar -f $PRIORITY_SCENARIO -o $OUTPUT/$I/
-    java -jar $HOME/SWEN489/movsim/core/target/MovsimCore-1.6.0-SNAPSHOT-jar-with-dependencies.jar -f $SCATS_SCENARIO -o $OUTPUT/$I/
-    java -jar $HOME/SWEN489/movsim/core/target/MovsimCore-1.6.0-SNAPSHOT-jar-with-dependencies.jar -f $VA_SCENARIO -o $OUTPUT/$I/
+    #java -jar $HOME/SWEN489/movsim/core/target/MovsimCore-1.6.0-SNAPSHOT-jar-with-dependencies.jar -f $SCATS_SCENARIO -o $OUTPUT/$I/
+    #java -jar $HOME/SWEN489/movsim/core/target/MovsimCore-1.6.0-SNAPSHOT-jar-with-dependencies.jar -f $VA_SCENARIO -o $OUTPUT/$I/
   done
-
-
-
-

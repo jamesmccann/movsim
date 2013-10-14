@@ -69,6 +69,8 @@ public class TrafficLightApproaching {
 
     private boolean stoppingCostBroadcast;
 
+    private boolean vehicleStopped = false;
+
     /**
      * Instantiates a new traffic light approaching.
      */
@@ -157,6 +159,7 @@ public class TrafficLightApproaching {
 
         if (!stoppingCostBroadcast && considerTrafficLight) {
             stoppingCostBroadcast = true;
+            vehicleStopped = true;
             incurredStoppingCost = me.getInstantaneousCost();
         }
     }
@@ -247,7 +250,8 @@ public class TrafficLightApproaching {
                 p.getNumberOfPassengers(), 
                 distanceToTrafficlight,
                 veh.getVehicleClass(), 
-                incurredStoppingCost
+                incurredStoppingCost,
+                vehicleStopped
         );
 
         // clear old approach and add new one
